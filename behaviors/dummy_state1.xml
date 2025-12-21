@@ -1,0 +1,9 @@
+<root BTCPP_format="4">
+  <BehaviorTree ID="DummyState1">
+    <Sequence>
+      <LogMessage message="Starting State 1 - Custom Action Example"/>
+      <Speak text="Hola 1"/>
+      <LogMessage message="State 1 completed successfully"/>
+    </Sequence>
+  </BehaviorTree>
+</root>

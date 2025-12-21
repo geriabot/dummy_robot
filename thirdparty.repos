@@ -1,0 +1,5 @@
+repositories:
+  behavior_architecture:
+    type: git
+    url: https://github.com/geriabot/behavior_architecture.git
+    version: main
