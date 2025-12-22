@@ -1,0 +1,32 @@
+# Configuration for dummy robot behavior example
+# This demonstrates a simple 2-state FSM with custom BehaviorTree nodes
+
+# Node name for the ROS blackboard node
+node_name: "dummy_robot_bt_node"
+
+# Type of orchestrator to use (must be registered in OrchestratorFactory)
+orchestrator_type: "dummy_robot"
+
+# Package name for resolving relative paths
+package_name: "dummy_robot"
+
+# Orchestrator libraries to load (contains the orchestrator registration)
+orchestrator_libraries:
+  - "libdummy_robot_orchestrator.so"
+
+# Plugin libraries to load (BehaviorTree.CPP plugins)
+plugin_libraries:
+  - "libsocial_bt_nodes_plugin.so"
+  - "libdummy_robot_bt_nodes.so"
+
+# List of behaviors to create and manage
+behaviors:
+  # First state behavior
+  - name: "state1_runner"
+    behavior_file: "behaviors/dummy_state1.xml"
+    control_period_ms: 50
+  
+  # Second state behavior
+  - name: "state2_runner"
+    behavior_file: "behaviors/dummy_state2.xml"
+    control_period_ms: 50

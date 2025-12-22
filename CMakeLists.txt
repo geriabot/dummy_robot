@@ -30,7 +30,30 @@ include_directories(
   include
 )
 
-# Dummy robot orchestrator executable
+# Dummy robot orchestrator library (for use with action_executor)
+add_library(${PROJECT_NAME}_orchestrator SHARED
+  src/dummy_robot_orchestrator.cpp
+)
+ament_target_dependencies(${PROJECT_NAME}_orchestrator ${dependencies})
+
+# Dummy robot BT nodes plugin library
+add_library(${PROJECT_NAME}_bt_nodes SHARED
+  src/bt_nodes/bt_plugins.cpp
+  src/bt_nodes/log_message_action.cpp
+)
+ament_target_dependencies(${PROJECT_NAME}_bt_nodes ${dependencies})
+
+# Required for BehaviorTree.CPP plugin export
+target_compile_definitions(${PROJECT_NAME}_bt_nodes PRIVATE BT_PLUGIN_EXPORT)
+
+# Install libraries
+install(TARGETS ${PROJECT_NAME}_orchestrator ${PROJECT_NAME}_bt_nodes
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+  RUNTIME DESTINATION bin
+)
+
+# Dummy robot orchestrator executable (original/legacy main)
 add_executable(dummy_robot_main
   src/dummy_robot_main.cpp
   src/dummy_robot_orchestrator.cpp
@@ -54,6 +77,12 @@ install(DIRECTORY
 # Install behavior tree files
 install(DIRECTORY
   behaviors
+  DESTINATION share/${PROJECT_NAME}
+)
+
+# Install config files
+install(DIRECTORY
+  config
   DESTINATION share/${PROJECT_NAME}
 )
 

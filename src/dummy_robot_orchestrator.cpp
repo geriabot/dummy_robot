@@ -13,9 +13,14 @@
 // limitations under the License.
 
 #include "dummy_robot/dummy_robot_orchestrator.hpp"
+#include "behavior_architecture/orchestrator_factory.hpp"
 
 namespace dummy_robot
 {
+
+// Register this orchestrator with the factory
+static behavior_architecture::OrchestratorRegistrar<DummyRobotOrchestrator> 
+  dummy_robot_registrar("dummy_robot");
 
 DummyRobotOrchestrator::DummyRobotOrchestrator(BT::Blackboard::Ptr blackboard)
 : BaseOrchestrator("dummy_robot_orchestrator", blackboard),
