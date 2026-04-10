@@ -7,20 +7,19 @@ endif()
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
+find_package(ament_index_cpp REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rclcpp_lifecycle REQUIRED)
-find_package(rclcpp_cascade_lifecycle REQUIRED)
 find_package(behavior_architecture REQUIRED)
-find_package(social_bt_nodes REQUIRED)
 find_package(behaviortree_cpp REQUIRED)
 find_package(std_msgs REQUIRED)
+find_package(yaml-cpp REQUIRED)
 
 set(dependencies
   rclcpp
   rclcpp_lifecycle
-  rclcpp_cascade_lifecycle
+  ament_index_cpp
   behavior_architecture
-  social_bt_nodes
   behaviortree_cpp
   std_msgs
 )
@@ -30,7 +29,7 @@ include_directories(
   include
 )
 
-# Dummy robot orchestrator library (for use with action_executor)
+# Dummy robot orchestrator library (for use with mission_executor)
 add_library(${PROJECT_NAME}_orchestrator SHARED
   src/dummy_robot_orchestrator.cpp
 )
@@ -61,6 +60,7 @@ add_executable(dummy_robot_main
 )
 
 ament_target_dependencies(dummy_robot_main ${dependencies})
+target_link_libraries(dummy_robot_main yaml-cpp)
 
 # Install executables
 install(TARGETS

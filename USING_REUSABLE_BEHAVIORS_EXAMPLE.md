@@ -79,8 +79,8 @@ And in `go_to_state()`:
 ```cpp
 case State::FOLLOW:
   RCLCPP_INFO(get_logger(), "Transitioning to FOLLOW");
-  clear_activation();
-  add_activation("follow_runner");  // Activate the reusable behavior
+  deactivate_all_runners();
+  activate_runner("follow_runner");  // Activate the reusable behavior
   break;
 ```
 

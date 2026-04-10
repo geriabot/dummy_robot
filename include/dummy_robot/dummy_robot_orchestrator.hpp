@@ -36,6 +36,12 @@ public:
 
 protected:
   /**
+   * @brief Configure lifecycle callback — creates and registers behavior runners
+   */
+  rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
+  on_configure(const rclcpp_lifecycle::State & state) override;
+
+  /**
    * @brief Main control cycle - implements FSM logic
    */
   void control_cycle() override;
@@ -44,7 +50,7 @@ protected:
    * @brief Transition to a specific state
    * @param state State identifier
    */
-  void go_to_state(int state);
+  void go_to_state(int state) override;
 
 private:
   enum class State {

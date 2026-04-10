@@ -13,7 +13,10 @@
 // limitations under the License.
 
 #include "dummy_robot/dummy_robot_orchestrator.hpp"
+#include "behavior_architecture/behavior_config.hpp"
+#include "behavior_architecture/behavior_runner.hpp"
 #include "behavior_architecture/orchestrator_factory.hpp"
+#include "dummy_robot/bt_nodes/log_message_action.hpp"
 
 namespace dummy_robot
 {
@@ -27,6 +30,42 @@ DummyRobotOrchestrator::DummyRobotOrchestrator(BT::Blackboard::Ptr blackboard)
   state_(State::INIT)
 {
   RCLCPP_INFO(get_logger(), "DummyRobotOrchestrator created");
+}
+
+rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
+DummyRobotOrchestrator::on_configure(const rclcpp_lifecycle::State & state)
+{
+  if (runners_.empty()) {
+    auto registrar = [](BT::BehaviorTreeFactory & factory) {
+      factory.registerNodeType<bt_nodes::LogMessageAction>("LogMessage");
+    };
+
+    // Prefer config from blackboard (set by mission_executor or main)
+    std::vector<behavior_architecture::BehaviorConfig> behaviors;
+    std::vector<std::string> plugins;
+    std::string pkg_name = "dummy_robot";
+
+    if (!blackboard_->get("behaviors_config", behaviors) ||
+      !blackboard_->get("plugin_libraries", plugins))
+    {
+      // Standalone fallback — hardcoded defaults
+      behaviors = {
+        {"state1_runner", "behaviors/dummy_state1.xml", "dummy_robot", 50},
+        {"state2_runner", "behaviors/dummy_state2.xml", "dummy_robot", 50},
+      };
+    } else {
+      std::ignore = blackboard_->get("package_name", pkg_name);
+    }
+
+    for (auto & bc : behaviors) {
+      auto runner = std::make_shared<behavior_architecture::BehaviorRunner>(
+        blackboard_, bc.name, bc.behavior_file, plugins,
+        bc.package_name.empty() ? pkg_name : bc.package_name,
+        bc.control_period_ms, registrar);
+      register_runner(bc.name, runner);
+    }
+  }
+  return BaseOrchestrator::on_configure(state);
 }
 
 void DummyRobotOrchestrator::control_cycle()
@@ -76,27 +115,24 @@ void DummyRobotOrchestrator::go_to_state(int state)
   switch (state_) {
     case State::INIT:
       RCLCPP_INFO(get_logger(), "Transitioning to INIT");
-      clear_activation();
+      deactivate_all_runners();
       break;
 
     case State::STATE_1:
       RCLCPP_INFO(get_logger(), "Transitioning to STATE_1");
-      clear_activation();
-      add_activation("state1_runner");
+      deactivate_all_runners();
+      activate_runner("state1_runner");
       break;
 
     case State::STATE_2:
       RCLCPP_INFO(get_logger(), "Transitioning to STATE_2");
-      RCLCPP_INFO(get_logger(), "  Step 1: Calling clear_activation()");
-      clear_activation();
-      RCLCPP_INFO(get_logger(), "  Step 2: Calling add_activation(state2_runner)");
-      add_activation("state2_runner");
-      RCLCPP_INFO(get_logger(), "  Step 3: Done");
+      deactivate_all_runners();
+      activate_runner("state2_runner");
       break;
 
     case State::STOP:
       RCLCPP_INFO(get_logger(), "Transitioning to STOP");
-      clear_activation();
+      deactivate_all_runners();
       break;
   }
 }

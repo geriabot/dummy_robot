@@ -1,12 +1,12 @@
 # Dummy Robot
 
-**Reference example package demonstrating the usage of the `behavior_architecture` framework with YAML-configured action executor.**
+**Reference example package demonstrating the usage of the `behavior_architecture` framework with YAML-configured mission executor.**
 
 > **Note**: This package serves as a reference implementation for developers who want to use `behavior_architecture` in their own robot projects. It provides a complete, working example of how to structure your package, create orchestrators, define behavior trees, implement custom BT nodes, and configure everything via YAML.
 
 ## Overview
 
-This package implements a simple two-state behavior system for a dummy robot using the behavior_architecture framework. It showcases the recommended approach: using the generic `action_executor` with YAML configuration instead of writing custom main() programs.
+This package implements a simple two-state behavior system for a dummy robot using the behavior_architecture framework. It showcases the recommended approach: using the generic `mission_executor` with YAML configuration instead of writing custom main() programs.
 
 ## Package Structure
 
@@ -28,7 +28,7 @@ dummy_robot/
 │   │   └── log_message_action.cpp         # Custom BT node
 │   └── dummy_robot_orchestrator.cpp       # FSM orchestrator implementation
 ├── launch/
-│   └── dummy_robot_action_executor.launch.py
+│   └── dummy_robot_mission_executor.launch.py
 ├── CMakeLists.txt
 └── package.xml
 ```
@@ -36,9 +36,10 @@ dummy_robot/
 ## Dependencies
 
 - `behavior_architecture`: Provides BaseOrchestrator and BehaviorRunner classes
-- `social_bt_nodes`: Behavior tree node plugins (Speak, etc.)
-- `rclcpp_cascade_lifecycle`: Lifecycle management
+- `rclcpp_lifecycle`: ROS 2 lifecycle node management
 - `behaviortree_cpp`: BehaviorTree.CPP library
+- `yaml-cpp`: YAML config parsing
+- `dummy_bt_nodes`: BT node plugins (external) — runtime only
 
 ## Getting Started
 
@@ -75,7 +76,7 @@ source install/setup.bash
 ```
 
 ```bash
-ros2 launch dummy_robot dummy_robot_action_executor.launch.py
+ros2 launch dummy_robot dummy_robot_mission_executor.launch.py
 ```
 
 The system will:
@@ -98,7 +99,7 @@ ros2 run dummy_robot dummy_robot_main
 2. **BehaviorRunners**: Execute behavior trees for each state
    - `state1_runner`: Executes dummy_state1.xml (includes custom LogMessage node)
    - `state2_runner`: Executes dummy_state2.xml
-   - Created automatically by action_executor from YAML config
+   - Created automatically by mission_executor from YAML config
 
 3. **Behavior Trees**: Define robot actions for each state
    - State 1: Logs custom message, speaks "Hola 1", logs completion
@@ -197,10 +198,10 @@ behaviors:
 
 ### 5. Launch File
 
-Simple launch file that uses the generic action_executor:
+Simple launch file that uses the generic mission_executor:
 
 ```python
-# launch/dummy_robot_action_executor.launch.py
+# launch/dummy_robot_mission_executor.launch.py
 from launch import LaunchDescription
 from launch.substitutions import PathJoinSubstitution
 from launch_ros.actions import Node
@@ -216,7 +217,7 @@ def generate_launch_description():
     return LaunchDescription([
         Node(
             package='behavior_architecture',
-            executable='action_executor',  # Generic executable
+            executable='mission_executor',  # Generic executable
             output='screen',
             emulate_tty=True,
             arguments=[config_file]

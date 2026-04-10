@@ -13,78 +13,49 @@
 // limitations under the License.
 
 #include "rclcpp/rclcpp.hpp"
-#include "rclcpp_cascade_lifecycle/rclcpp_cascade_lifecycle.hpp"
+#include "lifecycle_msgs/msg/transition.hpp"
+#include "ament_index_cpp/get_package_share_directory.hpp"
 
-#include "behavior_architecture/behavior_runner.hpp"
+#include "behavior_architecture/config_parser.hpp"
 #include "dummy_robot/dummy_robot_orchestrator.hpp"
-#include "dummy_robot/bt_nodes/log_message_action.hpp"
 
 int main(int argc, char * argv[])
 {
   rclcpp::init(argc, argv);
 
-  // Create shared blackboard for inter-node communication
+  // Accept an optional config file argument; default to the installed dummy_robot_config.yaml
+  std::string config_file;
+  if (argc >= 2) {
+    config_file = argv[1];
+  } else {
+    config_file = ament_index_cpp::get_package_share_directory("dummy_robot") +
+      "/config/dummy_robot_config.yaml";
+  }
+
+  behavior_architecture::ActionConfig config;
+  try {
+    config = behavior_architecture::parse_config(config_file);
+  } catch (const std::exception & e) {
+    RCLCPP_ERROR(rclcpp::get_logger("main"), "Failed to parse config: %s", e.what());
+    return 1;
+  }
+
   auto blackboard = BT::Blackboard::create();
-  
-  // Create a ROS node and add it to the blackboard
-  auto node = std::make_shared<rclcpp::Node>("dummy_robot_bt_node");
+  auto node = std::make_shared<rclcpp::Node>(config.node_name);
   blackboard->set("node", node);
-  
-  // Define custom node registration function
-  auto register_custom_nodes = [](BT::BehaviorTreeFactory& factory) {
-    factory.registerNodeType<dummy_robot::bt_nodes::LogMessageAction>("LogMessage");
-  };
-  
-  // Create BehaviorRunner nodes with plugin configuration
-  // Plugin library name for BehaviorTree.CPP
-  std::vector<std::string> plugins = {"libsocial_bt_nodes_plugin.so"};
-  
-  auto state1_runner = std::make_shared<behavior_architecture::BehaviorRunner>(
-    blackboard,
-    "state1_runner",
-    "behaviors/dummy_state1.xml",
-    plugins,
-    "dummy_robot",
-    50,  // Control cycle period: 50ms
-    register_custom_nodes  // Pass custom node registration
-  );
-  
-  auto state2_runner = std::make_shared<behavior_architecture::BehaviorRunner>(
-    blackboard,
-    "state2_runner",
-    "behaviors/dummy_state2.xml",
-    plugins,
-    "dummy_robot",
-    50,  // Control cycle period: 50ms
-    register_custom_nodes  // Pass custom node registration
-  );
+  behavior_architecture::setup_blackboard_from_config(blackboard, config);
 
-  // Create orchestrator
-  auto orchestrator = std::make_shared<dummy_robot::DummyRobotOrchestrator>(
-    blackboard
-  );
+  auto orchestrator = std::make_shared<dummy_robot::DummyRobotOrchestrator>(blackboard);
 
-  // Configure all nodes
-  state1_runner->trigger_transition(
-    lifecycle_msgs::msg::Transition::TRANSITION_CONFIGURE
-  );
-  state2_runner->trigger_transition(
-    lifecycle_msgs::msg::Transition::TRANSITION_CONFIGURE
-  );
-  orchestrator->trigger_transition(
-    lifecycle_msgs::msg::Transition::TRANSITION_CONFIGURE
-  );
+  // on_configure creates and registers the behavior runners from blackboard config
+  orchestrator->trigger_transition(lifecycle_msgs::msg::Transition::TRANSITION_CONFIGURE);
+  orchestrator->trigger_transition(lifecycle_msgs::msg::Transition::TRANSITION_ACTIVATE);
 
-  // Activate orchestrator (it will coordinate behavior runners via cascade)
-  orchestrator->trigger_transition(
-    lifecycle_msgs::msg::Transition::TRANSITION_ACTIVATE
-  );
-
-  // Create executor and add nodes
   rclcpp::executors::MultiThreadedExecutor executor;
   executor.add_node(node);
-  executor.add_node(state1_runner->get_node_base_interface());
-  executor.add_node(state2_runner->get_node_base_interface());
+  for (auto & runner : orchestrator->get_runners()) {
+    executor.add_node(runner->get_node_base_interface());
+  }
   executor.add_node(orchestrator->get_node_base_interface());
 
   RCLCPP_INFO(rclcpp::get_logger("main"), "Dummy robot starting...");

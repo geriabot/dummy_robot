@@ -1,0 +1,47 @@
+# LLM-guided configuration for dummy_robot
+# orchestrator_type: "llm" tells behavior_architecture to use the LLM planning
+# pipeline (llm_planner + llm_bt_builder + LLMPlanOrchestrator) instead of the
+# fixed state-machine orchestrator defined in dummy_robot_orchestrator.cpp.
+#
+# Usage (with LLM nodes launched here):
+#   ros2 launch dummy_robot dummy_robot_llm.launch.py launch_llm_nodes:=true
+#
+# Usage (LLM nodes already running):
+#   ros2 launch dummy_robot dummy_robot_llm.launch.py
+
+# ── Common fields ─────────────────────────────────────────────────────────────
+node_name: "dummy_robot_bt_node"
+orchestrator_type: "llm"
+package_name: "dummy_robot"
+
+# BT plugin that provides the action nodes available to the LLM BT builder.
+plugin_libraries:
+  - "libdummy_bt_nodes_plugin.so"
+
+# Packages whose node_descriptions/*.yaml the BT builder uses to know which
+# BT action nodes exist and how to use them.
+bt_nodes_packages:
+  - "dummy_bt_nodes"
+bt_control_period_ms: 50
+bt_timeout_sec: 60.0
+
+# ── LLM provider settings ─────────────────────────────────────────────────────
+# planner: breaks the high-level goal into a sequence of sub-task steps.
+planner_llm_provider: "gemini"    # gemini | openai | anthropic | deepseek | ollama
+planner_llm_model: "gemini-2.5-flash"
+planner_llm_api_key: ""           # leave empty to auto-detect from env vars
+                                  # (GEMINI_API_KEY, OPENAI_API_KEY, …)
+
+# bt_builder: generates BT XML for each step using the node_descriptions above.
+bt_builder_llm_provider: "gemini"
+bt_builder_llm_model: "gemini-2.5-flash"
+bt_builder_llm_api_key: ""
+
+# ── Goal definition ───────────────────────────────────────────────────────────
+# Sent to llm_planner at start-up via the /start_goal service.
+goal: "Greet the visitor and ask whether they need assistance"
+context: |
+  NAO humanoid robot acting as a receptionist in an office lobby.
+  The robot can speak and listen using text-to-speech and speech-to-text services.
+  A visitor has just entered; the robot must greet them politely and ask if they
+  need any help finding a room or person.
