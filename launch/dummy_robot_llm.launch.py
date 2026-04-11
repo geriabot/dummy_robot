@@ -30,7 +30,7 @@ def launch_setup(context, *args, **kwargs):
       1. llm_planner_node    — breaks the goal into steps (optional)
       2. llm_bt_agent_node   — generates BT XML per step (optional)
       3. llm_plan_executor   — runs the planning + execution FSM
-      4. test_start_mission  — sends the mission after a short delay
+      4. start_mission      — sends the mission after a short delay
 
     All LLM provider settings, BT parameters, goal, and context come from
     the config file so there is a single place to change them.
@@ -122,8 +122,8 @@ def launch_setup(context, *args, **kwargs):
         period=3.0,
         actions=[Node(
             package='behavior_architecture',
-            executable='test_start_mission',
-            name='test_start_mission',
+            executable='start_mission',
+            name='start_mission',
             output='screen',
             emulate_tty=True,
             parameters=[{
@@ -143,7 +143,7 @@ def generate_launch_description():
       1. llm_planner_node    — generates step-by-step task plans via LLM    (optional)
       2. llm_bt_agent_node   — generates BT XML from step descriptions       (optional)
       3. llm_plan_executor   — orchestrates planning, BT generation, and execution
-      4. test_start_mission  — sends the initial mission (after a 3 s delay)
+      4. start_mission      — sends the initial mission (after a 3 s delay)
 
     All configuration is loaded from a single YAML file (same unified format
     as dummy_mission.yaml for the fixed orchestrator, but with
