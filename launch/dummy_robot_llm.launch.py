@@ -30,7 +30,7 @@ def launch_setup(context, *args, **kwargs):
       1. llm_planner_node    — breaks the goal into steps (optional)
       2. llm_bt_agent_node   — generates BT XML per step (optional)
       3. llm_plan_executor   — runs the planning + execution FSM
-      4. test_start_goal     — sends the goal after a short delay
+      4. test_start_mission  — sends the mission after a short delay
 
     All LLM provider settings, BT parameters, goal, and context come from
     the config file so there is a single place to change them.
@@ -40,6 +40,7 @@ def launch_setup(context, *args, **kwargs):
     running in another terminal.
     """
     config_file = LaunchConfiguration('config_file').perform(context)
+    skills_file = LaunchConfiguration('skills_file').perform(context)
     launch_llm_nodes = (
         LaunchConfiguration('launch_llm_nodes').perform(context).lower() == 'true'
     )
@@ -117,12 +118,13 @@ def launch_setup(context, *args, **kwargs):
         period=3.0,
         actions=[Node(
             package='behavior_architecture',
-            executable='test_start_goal',
-            name='test_start_goal',
+            executable='test_start_mission',
+            name='test_start_mission',
             output='screen',
             emulate_tty=True,
             parameters=[{
                 'goal_file': config_file,
+                'skills_file': skills_file,
             }],
         )],
     ))
@@ -137,10 +139,10 @@ def generate_launch_description():
       1. llm_planner_node    — generates step-by-step task plans via LLM    (optional)
       2. llm_bt_agent_node   — generates BT XML from step descriptions       (optional)
       3. llm_plan_executor   — orchestrates planning, BT generation, and execution
-      4. test_start_goal     — sends the initial goal (after a 3 s delay)
+      4. test_start_mission  — sends the initial mission (after a 3 s delay)
 
     All configuration is loaded from a single YAML file (same unified format
-    as dummy_robot_config.yaml for the fixed orchestrator, but with
+    as dummy_mission.yaml for the fixed orchestrator, but with
     orchestrator_type: "llm").
 
     Set launch_llm_nodes:=false (default) when llm_planner and llm_bt_builder
@@ -158,7 +160,8 @@ def generate_launch_description():
         config_file:=/path/to/my_config.yaml launch_llm_nodes:=true
     """
     pkg_dir = get_package_share_directory('dummy_robot')
-    default_config = os.path.join(pkg_dir, 'config', 'dummy_robot_llm_config.yaml')
+    default_config = os.path.join(pkg_dir, 'config', 'llm_mission.yaml')
+    default_skills = os.path.join(pkg_dir, 'config', 'dummy_robot_skills.yaml')
 
     config_file_arg = DeclareLaunchArgument(
         'config_file',
@@ -167,6 +170,12 @@ def generate_launch_description():
             'Path to the unified YAML config file '
             '(orchestrator_type must be "llm")'
         ),
+    )
+
+    skills_file_arg = DeclareLaunchArgument(
+        'skills_file',
+        default_value=default_skills,
+        description='Path to the YAML file listing the robot skills (skills: [...]).',
     )
 
     launch_llm_nodes_arg = DeclareLaunchArgument(
@@ -180,6 +189,7 @@ def generate_launch_description():
 
     return LaunchDescription([
         config_file_arg,
+        skills_file_arg,
         launch_llm_nodes_arg,
         OpaqueFunction(function=launch_setup),
     ])

@@ -23,13 +23,13 @@ int main(int argc, char * argv[])
 {
   rclcpp::init(argc, argv);
 
-  // Accept an optional config file argument; default to the installed dummy_robot_config.yaml
+  // Accept an optional config file argument; default to the installed dummy_mission.yaml
   std::string config_file;
   if (argc >= 2) {
     config_file = argv[1];
   } else {
     config_file = ament_index_cpp::get_package_share_directory("dummy_robot") +
-      "/config/dummy_robot_config.yaml";
+      "/config/dummy_mission.yaml";
   }
 
   behavior_architecture::ActionConfig config;

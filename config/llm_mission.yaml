@@ -38,7 +38,8 @@ bt_builder_llm_model: "gemini-2.5-flash"
 bt_builder_llm_api_key: ""
 
 # ── Goal definition ───────────────────────────────────────────────────────────
-# Sent to llm_planner at start-up via the /start_goal service.
+# Sent to llm_planner at start-up via the /start_mission service.
+# Skills are defined in dummy_robot_skills.yaml and passed via the 'skills_file' launch arg.
 goal: "Greet the visitor and ask whether they need assistance"
 context: |
   NAO humanoid robot acting as a receptionist in an office lobby.

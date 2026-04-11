@@ -16,7 +16,7 @@ dummy_robot/
 │   ├── dummy_state1.xml       # First state behavior
 │   └── dummy_state2.xml       # Second state behavior
 ├── config/                     # YAML configuration
-│   └── dummy_robot_config.yaml
+│   └── dummy_mission.yaml
 ├── include/
 │   └── dummy_robot/
 │       ├── bt_nodes/                      # Custom BehaviorTree nodes
@@ -170,7 +170,7 @@ BT_REGISTER_NODES(factory)
 
 ### 4. YAML Configuration
 
-Everything is configured declaratively in `config/dummy_robot_config.yaml`:
+Everything is configured declaratively in `config/dummy_mission.yaml`:
 
 ```yaml
 node_name: "dummy_robot_bt_node"
@@ -211,7 +211,7 @@ def generate_launch_description():
     config_file = PathJoinSubstitution([
         FindPackageShare('dummy_robot'),
         'config',
-        'dummy_robot_config.yaml'
+        'dummy_mission.yaml'
     ])
     
     return LaunchDescription([

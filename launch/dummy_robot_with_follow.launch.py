@@ -30,7 +30,7 @@ def generate_launch_description():
     
     # Get package directory
     pkg_dir = get_package_share_directory('dummy_robot')
-    config_file = os.path.join(pkg_dir, 'config', 'dummy_robot_with_follow.yaml')
+    config_file = os.path.join(pkg_dir, 'config', 'dummy_mission_with_follow.yaml')
     
     # Mission executor node (from behavior_architecture package)
     mission_executor_node = Node(

@@ -1,0 +1,26 @@
+# dummy_robot_skills.yaml
+# Capabilities available to the dummy_robot in this deployment.
+# This file is passed to test_start_mission via the 'skills_file' launch argument
+# and its contents are forwarded to every plan/replan request so the LLM
+# plans exclusively within this capability envelope.
+#
+# Usage:
+#   ros2 launch dummy_robot dummy_robot_llm.launch.py \
+#     skills_file:=$(ros2 pkg prefix dummy_robot)/share/dummy_robot/config/dummy_robot_skills.yaml
+
+skills:
+  - "Speak using text-to-speech"
+  - "Listen and transcribe speech using speech-to-text"
+  - "Ask an open-ended question and capture the answer"
+  - "Ask a yes/no confirmation question"
+  - "Detect and identify a target entity (person, object)"
+  - "Set the perception system to search for a specific target class"
+  - "Navigate to a named location or map coordinates"
+  - "Follow a person or entity"
+  - "Wait for a specified duration"
+  - "Execute a generic action (e.g. open door, pick object, send notification)"
+  - "Enumerate and speak a list of items using text-to-speech"
+  - "Extract specific information from a text using LLM"
+  - "Follow a person or entity with dynamic speed adjustment"
+  - "Spin in place to search for a target"
+  - "Set a parameter on a ROS 2 node"
