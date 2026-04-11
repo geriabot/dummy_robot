@@ -40,9 +40,13 @@ bt_builder_llm_api_key: ""
 # ── Goal definition ───────────────────────────────────────────────────────────
 # Sent to llm_planner at start-up via the /start_mission service.
 # Skills are defined in dummy_robot_skills.yaml and passed via the 'skills_file' launch arg.
-goal: "Greet the visitor and ask whether they need assistance"
+mission_name: "restaurant_waiter"
+goal: "Take the customer's full order and deliver food to the kitchen chef and drink to the bar waiter"
 context: |
-  NAO humanoid robot acting as a receptionist in an office lobby.
-  The robot can speak and listen using text-to-speech and speech-to-text services.
-  A visitor has just entered; the robot must greet them politely and ask if they
-  need any help finding a room or person.
+  A service robot acting as a waiter in a restaurant.
+  The robot starts at the service counter. There are 5 tables where customers are seated.
+  The kitchen is at the back of the restaurant where the chef works.
+  The bar is at the front of the restaurant where the human bar waiter serves drinks.
+  The robot must identify a customer ready to order, take their full order (first dish,
+  second dish, and drink), go to the kitchen to relay the food items to the chef, then
+  go to the bar to relay the drink to the human waiter.
