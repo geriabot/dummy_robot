@@ -40,6 +40,12 @@ bt_builder_llm_api_key: ""
 # ── Goal definition ───────────────────────────────────────────────────────────
 # Sent to llm_planner at start-up via the /start_mission service.
 # Skills are defined in dummy_robot_skills.yaml and passed via the 'skills_file' launch arg.
+# ── Execution logging ─────────────────────────────────────────────────────────
+# save_exec: true  → saves generated BT XMLs to <exec_dir>/<mission_name>/<timestamp>/
+# Can also be enabled at launch time with save_exec:=true
+save_exec: true
+exec_dir: "/home/roi/UNI/robots/ros2/social_ws/exec"
+
 mission_name: "restaurant_waiter"
 goal: "Take the customer's full order and deliver food to the kitchen chef and drink to the bar waiter"
 context: |
