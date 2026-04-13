@@ -33,23 +33,26 @@ bt_builder_llm_api_key: ""
 
 # ── Goal definition ───────────────────────────────────────────────────────────
 mission_name: "museum_guide"
-goal: "Find a lost visitor, escort them to the exhibit they are looking for, and report back to the information desk"
+goal: "Find a lost visitor, ask them what exhibit they are looking for, escort them to that exhibit, and report back to the information desk"
 context: |
   A service robot acting as a guide in a museum.
   The robot patrols the entrance hall. Visitors sometimes get lost looking for a
   specific exhibit.
-  Physical behaviour requirements:
-  - Whenever the robot addresses a person (greets, asks a question, confirms, or reports),
-    it MUST first face that person directly (turn towards them) before speaking.
-  - When a lost visitor is detected, the robot MUST navigate to the visitor's location
-    before speaking to them. Do not skip the approach step.
-  - When asking the visitor to follow, the robot MUST explicitly tell the visitor to
-    follow it before starting to navigate to the exhibit.
-  - When navigating to the exhibit, the robot moves ahead and the visitor follows.
-    The robot does NOT need to search for the visitor during navigation.
-  - Upon arrival at the exhibit, the robot MUST turn towards the visitor (face them)
-    before confirming arrival.
-  - After confirming the visitor has arrived, the robot navigates back to the
-    information desk alone and verbally reports the completed assistance to the desk staff.
   The museum has three wings: Ancient History (left), Modern Art (right), and
   Science (back). The information desk is at the main entrance.
+
+preconditions:
+  - "Whenever the robot addresses a person (greets, asks a question, confirms, or reports), it MUST first face that person directly (turn towards them) before speaking."
+  - "When a lost visitor is detected, the robot MUST approach the visitor before speaking to them."
+  - "When asking the visitor to follow, the robot MUST explicitly tell the visitor to follow it before starting to navigate to the exhibit."
+  - "Upon arrival at the exhibit, the robot MUST turn towards the visitor (face them) before confirming arrival."
+
+postconditions:
+  - "The plan must NOT assume that the lost visitor is visible or detectable at the start. The robot should actively search for the visitor if their location is unknown or not directly observable."
+  - "When navigating to the exhibit, the robot must focus solely on reaching the destination. It must assume the visitor is following and must not perform any action to actively track, look for, or follow the visitor simultaneously."
+  - "After confirming the visitor has arrived, the robot navigates back to the information desk alone and verbally reports the completed assistance to the desk staff."
+
+# ── Execution logging ─────────────────────────────────────────────────────────
+# save_exec: true  → saves generated BT XMLs to <exec_dir>/<mission_name>/<timestamp>/
+save_exec: true
+exec_dir: "/home/roi/UNI/robots/ros2/social_ws/exec"

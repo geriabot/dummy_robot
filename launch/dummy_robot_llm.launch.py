@@ -39,15 +39,23 @@ def launch_setup(context, *args, **kwargs):
     from this launch file. Leave it as false when those nodes are already
     running in another terminal.
     """
-    config_file = LaunchConfiguration('config_file').perform(context)
+    mission_file = LaunchConfiguration('mission_file').perform(context)
     skills_file = LaunchConfiguration('skills_file').perform(context)
     launch_llm_nodes = (
         LaunchConfiguration('launch_llm_nodes').perform(context).lower() == 'true'
     )
-    save_exec = LaunchConfiguration('save_exec').perform(context).lower() == 'true'
+    save_exec_arg = LaunchConfiguration('save_exec').perform(context).lower() == 'true'
 
-    with open(config_file, 'r') as f:
+    # If it's just a filename, assume it's in dummy_robot/config
+    if not os.path.isabs(mission_file):
+        pkg_dir = get_package_share_directory('dummy_robot')
+        mission_file = os.path.join(pkg_dir, 'config', mission_file)
+
+    with open(mission_file, 'r') as f:
         config = yaml.safe_load(f)
+
+    # Allow save_exec to be defined either via launch CLI or inside the YAML
+    save_exec = save_exec_arg or config.get('save_exec', False)
 
     # ── LLM provider fields ───────────────────────────────────────────────────
     planner_provider = config.get(
@@ -105,7 +113,7 @@ def launch_setup(context, *args, **kwargs):
         ))
 
     # ── 3. Mission Executor (handles both fixed and LLM orchestrators) ─────────
-    executor_args = [config_file]
+    executor_args = [mission_file]
     if save_exec:
         executor_args.append('--save-exec')
     nodes.append(Node(
@@ -127,7 +135,7 @@ def launch_setup(context, *args, **kwargs):
             output='screen',
             emulate_tty=True,
             parameters=[{
-                'goal_file': config_file,
+                'goal_file': mission_file,
                 'skills_file': skills_file,
             }],
         )],
@@ -161,18 +169,18 @@ def generate_launch_description():
 
       # Custom config:
       ros2 launch dummy_robot dummy_robot_llm.launch.py \\
-        config_file:=/path/to/my_config.yaml launch_llm_nodes:=true
+        mission_file:=llm_mission_2.yaml launch_llm_nodes:=true
     """
     pkg_dir = get_package_share_directory('dummy_robot')
     default_config = os.path.join(pkg_dir, 'config', 'llm_mission.yaml')
     default_skills = os.path.join(pkg_dir, 'config', 'dummy_robot_skills.yaml')
 
-    config_file_arg = DeclareLaunchArgument(
-        'config_file',
+    mission_file_arg = DeclareLaunchArgument(
+        'mission_file',
         default_value=default_config,
         description=(
-            'Path to the unified YAML config file '
-            '(orchestrator_type must be "llm")'
+            'Path to the unified YAML mission file '
+            '(orchestrator_type must be "llm"). Can be a filename in dummy_robot/config.'
         ),
     )
 
@@ -201,7 +209,7 @@ def generate_launch_description():
     )
 
     return LaunchDescription([
-        config_file_arg,
+        mission_file_arg,
         skills_file_arg,
         launch_llm_nodes_arg,
         save_exec_arg,
