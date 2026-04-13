@@ -56,3 +56,6 @@ context: |
   The robot must identify a customer ready to order, take their full order (first dish,
   second dish, and drink), go to the kitchen to relay the food items to the chef, then
   go to the bar to relay the drink to the human waiter.
+  Important: The plan must NOT assume that the customer is visible or detectable at the start. The robot should actively search for the customer if their location is unknown or not directly observable.
+  
+  When communicating with the chef in the kitchen, the robot must exclusively relay the food items from the customer's order. When communicating with the bar waiter, the robot must exclusively relay the drink from the customer's order. To guarantee this strict isolation of information, the robot must capture and memorize the food selection and the drink selection as two entirely separate pieces of information right from the moment the customer speaks.
