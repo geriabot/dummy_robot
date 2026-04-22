@@ -135,7 +135,7 @@ def launch_setup(context, *args, **kwargs):
             output='screen',
             emulate_tty=True,
             parameters=[{
-                'goal_file': mission_file,
+                'mission_file': mission_file,
                 'skills_file': skills_file,
             }],
         )],
@@ -172,7 +172,7 @@ def generate_launch_description():
         mission_file:=guide_mission.yaml launch_llm_nodes:=true
     """
     pkg_dir = get_package_share_directory('dummy_robot')
-    default_config = os.path.join(pkg_dir, 'config', 'waiter_mission.yaml')
+    default_config = os.path.join(pkg_dir, 'config', 'waiter_mission_checking.yaml')
     default_skills = os.path.join(pkg_dir, 'config', 'dummy_robot_skills.yaml')
 
     mission_file_arg = DeclareLaunchArgument(

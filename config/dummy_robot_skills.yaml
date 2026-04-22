@@ -10,9 +10,9 @@
 
 skills:
   - "Speak using text-to-speech"
-  - "Listen and transcribe speech using speech-to-text"
   - "Ask an open-ended question and capture the answer"
-  - "Ask a yes/no confirmation question"
+  - "Ask a yes/no confirmation question and capture the result"
+  - "Check whether requested items are available against a provided availability list"
   - "Detect and identify a target entity (person, object)"
   - "Set the perception system to search for a specific target class"
   - "Navigate to a named location (kitchen, bar, entrance hall)"
@@ -24,5 +24,5 @@ skills:
   - "Enumerate and speak a list of items using text-to-speech"
   - "Extract specific information from a text using LLM"
   - "Follow a person or entity with dynamic speed adjustment"
-  - "Spin in place to search for a target"
+  - "Spin in place"
   - "Set a parameter on a ROS 2 node"
