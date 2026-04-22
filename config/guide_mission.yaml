@@ -1,0 +1,58 @@
+# LLM-guided configuration for dummy_robot — mission 2
+# Scenario: robot guide in a museum escorts a lost visitor to the requested exhibit,
+# then checks back at the information desk to report the assistance.
+# Used to stress-test the LLM planning + BT generation pipeline with a different
+# context and data-flow pattern from llm_mission.yaml.
+#
+# Usage (with LLM nodes launched here):
+#   ros2 launch dummy_robot dummy_robot_llm.launch.py \
+#     mission_config:=$(ros2 pkg prefix dummy_robot)/share/dummy_robot/config/llm_mission_2.yaml \
+#     launch_llm_nodes:=true
+
+# ── Common fields ─────────────────────────────────────────────────────────────
+node_name: "dummy_robot_bt_node"
+orchestrator_type: "llm"
+package_name: "dummy_robot"
+
+plugin_libraries:
+  - "libdummy_bt_nodes_plugin.so"
+
+bt_nodes_packages:
+  - "dummy_bt_nodes"
+bt_control_period_ms: 50
+bt_timeout_sec: 60.0
+
+# ── LLM provider settings ─────────────────────────────────────────────────────
+planner_llm_provider: "gemini"
+planner_llm_model: "gemini-2.5-flash"
+planner_llm_api_key: ""
+
+bt_builder_llm_provider: "gemini"
+bt_builder_llm_model: "gemini-2.5-flash"
+bt_builder_llm_api_key: ""
+
+# ── Goal definition ───────────────────────────────────────────────────────────
+mission_name: "museum_guide"
+goal: "Find a lost visitor, ask them what exhibit they are looking for, escort them to that exhibit, and report back to the information desk"
+context: |
+  A service robot acting as a guide in a museum.
+  The robot patrols the entrance hall. Visitors sometimes get lost looking for a
+  specific exhibit.
+  The museum has three wings: Ancient History (left), Modern Art (right), and
+  Science (back). The information desk is at the main entrance.
+
+preconditions:
+  - "Whenever the robot addresses a person (greets, asks a question, confirms, or reports), it MUST first face that person directly (turn towards them) before speaking."
+  - "When a lost visitor is detected, the robot MUST approach the visitor before speaking to them."
+  - "When asking the visitor to follow, the robot MUST explicitly tell the visitor to follow it before starting to navigate to the exhibit."
+  - "Upon arrival at the exhibit, the robot MUST turn towards the visitor (face them) before confirming arrival."
+
+postconditions:
+  - "The plan must NOT assume that the lost visitor is visible or detectable at the start. The robot should actively search for the visitor if their location is unknown or not directly observable."
+  - "When navigating to the exhibit, the robot must focus solely on reaching the destination. It must assume the visitor is following and must not perform any action to actively track, look for, or follow the visitor simultaneously."
+  - "After confirming the visitor has arrived, the robot navigates back to the information desk alone and verbally reports the completed assistance to the desk staff."
+
+# ── Execution logging ─────────────────────────────────────────────────────────
+# save_exec: true  → saves generated BT XMLs to <exec_dir>/<mission_name>/<timestamp>/
+save_exec: true
+exec_dir: "/home/roi/UNI/robots/ros2/social_ws/exec"

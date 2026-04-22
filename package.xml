@@ -11,10 +11,11 @@
 
   <depend>rclcpp</depend>
   <depend>rclcpp_lifecycle</depend>
-  <depend>rclcpp_cascade_lifecycle</depend>
+  <depend>ament_index_cpp</depend>
   <depend>behavior_architecture</depend>
-  <depend>social_bt_nodes</depend>
+  <depend>yaml-cpp</depend>
   <depend>behaviortree_cpp</depend>
+  <exec_depend>dummy_bt_nodes</exec_depend>
   <depend>std_msgs</depend>
 
   <test_depend>ament_lint_auto</test_depend>

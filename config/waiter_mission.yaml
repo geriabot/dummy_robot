@@ -1,0 +1,77 @@
+# LLM-guided configuration for dummy_robot
+# orchestrator_type: "llm" tells behavior_architecture to use the LLM planning
+# pipeline (llm_planner + llm_bt_builder + LLMPlanOrchestrator) instead of the
+# fixed state-machine orchestrator defined in dummy_robot_orchestrator.cpp.
+#
+# Usage (with LLM nodes launched here):
+#   ros2 launch dummy_robot dummy_robot_llm.launch.py launch_llm_nodes:=true
+#
+# Usage (LLM nodes already running):
+#   ros2 launch dummy_robot dummy_robot_llm.launch.py
+
+# ── Common fields ─────────────────────────────────────────────────────────────
+node_name: "dummy_robot_bt_node"
+orchestrator_type: "llm"
+package_name: "dummy_robot"
+
+# BT plugin that provides the action nodes available to the LLM BT builder.
+plugin_libraries:
+  - "libdummy_bt_nodes_plugin.so"
+
+# Packages whose node_descriptions/*.yaml the BT builder uses to know which
+# BT action nodes exist and how to use them.
+bt_nodes_packages:
+  - "dummy_bt_nodes"
+bt_control_period_ms: 50
+bt_timeout_sec: 60.0
+
+# ── LLM provider settings ─────────────────────────────────────────────────────
+# planner: breaks the high-level goal into a sequence of sub-task steps.
+planner_llm_provider: "gemini"    # gemini | openai | anthropic | deepseek | ollama
+planner_llm_model: "gemini-2.5-flash"
+planner_llm_api_key: ""           # leave empty to auto-detect from env vars
+                                  # (GEMINI_API_KEY, OPENAI_API_KEY, …)
+
+# bt_builder: generates BT XML for each step using the node_descriptions above.
+bt_builder_llm_provider: "gemini"
+bt_builder_llm_model: "gemini-2.5-flash"
+bt_builder_llm_api_key: ""
+
+# ── Goal definition ───────────────────────────────────────────────────────────
+# Sent to llm_planner at start-up via the /start_mission service.
+# Skills are defined in dummy_robot_skills.yaml and passed via the 'skills_file' launch arg.
+# ── Execution logging ─────────────────────────────────────────────────────────
+# save_exec: true  → saves generated BT XMLs to <exec_dir>/<mission_name>/<timestamp>/
+# Can also be enabled at launch time with save_exec:=true
+save_exec: true
+exec_dir: "/home/roi/UNI/robots/ros2/social_ws/exec"
+
+mission_name: "restaurant_waiter"
+goal: "Take the customer's full order and deliver food to the kitchen chef and drink to the bar waiter"
+context: |
+  A service robot acting as a waiter in a restaurant.
+  The robot starts at the service counter. There are 5 tables where customers are seated.
+  The kitchen is at the back of the restaurant where the chef works.
+  The bar is at the front of the restaurant where the human bar waiter serves drinks.
+  The robot must identify a customer ready to order, approach their table, take their full order (first dish,
+  second dish, and drink), go to the kitchen to relay the food items to the chef, then
+  go to the bar to relay the drink to the human waiter.
+
+useful_info: |
+  Available locations are:
+    - main_kitchen
+    - bar
+
+preconditions:
+  - "The plan must NOT assume that the customer is visible or detectable at the start. The robot should actively search for the customer if their location is unknown or not directly observable."
+  - "The robot must explicitly navigate to the detected customer's location before attempting to speak with them."
+
+postconditions:
+  - "When communicating with the chef in the kitchen, the robot must exclusively relay the food items from the customer's order."
+  - "When communicating with the bar waiter, the robot must exclusively relay the drink from the customer's order."
+  - "To guarantee this strict isolation of information, the robot must capture and memorize the food selection and the drink selection as two entirely separate pieces of information right from the moment the customer speaks."
+
+# ── Execution logging ─────────────────────────────────────────────────────────
+# save_exec: true  → saves generated BT XMLs to <exec_dir>/<mission_name>/<timestamp>/
+save_exec: true
+exec_dir: "/home/roi/UNI/robots/ros2/social_ws/exec"

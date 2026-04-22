@@ -30,17 +30,17 @@ def generate_launch_description():
     
     # Get package directory
     pkg_dir = get_package_share_directory('dummy_robot')
-    config_file = os.path.join(pkg_dir, 'config', 'dummy_robot_with_follow.yaml')
+    config_file = os.path.join(pkg_dir, 'config', 'dummy_mission_with_follow.yaml')
     
-    # Action executor node (from behavior_architecture package)
-    action_executor_node = Node(
+    # Mission executor node (from behavior_architecture package)
+    mission_executor_node = Node(
         package='behavior_architecture',
-        executable='action_executor',
+        executable='mission_executor',
         output='screen',
         emulate_tty=True,
         arguments=[config_file]
     )
 
     return LaunchDescription([
-        action_executor_node
+        mission_executor_node
     ])

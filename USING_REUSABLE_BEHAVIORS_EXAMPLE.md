@@ -4,7 +4,7 @@ This example demonstrates how to use reusable behaviors from the `behavior_archi
 
 ## What This Example Shows
 
-The `dummy_robot_with_follow.yaml` config demonstrates:
+The `dummy_mission_with_follow.yaml` config demonstrates:
 
 1. **Loading your own behaviors** from your package
 2. **Loading reusable behaviors** from `behavior_architecture` package
@@ -12,7 +12,7 @@ The `dummy_robot_with_follow.yaml` config demonstrates:
 
 ## Configuration
 
-See [config/dummy_robot_with_follow.yaml](config/dummy_robot_with_follow.yaml):
+See [config/dummy_mission_with_follow.yaml](config/dummy_mission_with_follow.yaml):
 
 ```yaml
 # Global package for dummy_robot's own behaviors
@@ -79,8 +79,8 @@ And in `go_to_state()`:
 ```cpp
 case State::FOLLOW:
   RCLCPP_INFO(get_logger(), "Transitioning to FOLLOW");
-  clear_activation();
-  add_activation("follow_runner");  // Activate the reusable behavior
+  deactivate_all_runners();
+  activate_runner("follow_runner");  // Activate the reusable behavior
   break;
 ```
 
