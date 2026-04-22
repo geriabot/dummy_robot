@@ -1,37 +1,23 @@
-# Mission configuration for dummy_robot (LLM orchestrator mode).
-# orchestrator_type: "llm" tells behavior_architecture to use LLMPlanOrchestrator.
-# This launcher now starts only mission_executor + start_mission.
-# Planner and BT builder nodes should be launched separately when needed.
-#
-# Usage:
-#   ros2 launch dummy_robot dummy_robot_llm.launch.py
+# LLM + MCP-guided configuration for dummy_robot
+# This file is intended for A/B testing against waiter_mission_checking.yaml.
 
-# ── Common fields ─────────────────────────────────────────────────────────────
 node_name: "dummy_robot_bt_node"
-orchestrator_type: "llm"
+orchestrator_type: "mcp_llm_plan_orchestrator"
 package_name: "dummy_robot"
 
-# BT plugin that provides the action nodes available to the LLM BT builder.
 plugin_libraries:
   - "libdummy_bt_nodes_plugin.so"
 
-# Packages whose node_descriptions/*.yaml the BT builder uses to know which
-# BT action nodes exist and how to use them.
 bt_nodes_packages:
   - "dummy_bt_nodes"
 bt_control_period_ms: 50
 bt_timeout_sec: 60.0
 
-# ── Goal definition ───────────────────────────────────────────────────────────
-# Sent to llm_planner at start-up via the /start_mission service.
-# Skills are defined in dummy_robot_skills.yaml and passed via the 'skills_file' launch arg.
-# ── Execution logging ─────────────────────────────────────────────────────────
-# save_exec: true  → saves generated BT XMLs to <exec_dir>/<mission_name>/<timestamp>/
-# Can also be enabled at launch time with save_exec:=true
+# ── Mission definition ────────────────────────────────────────────────────────
 save_exec: true
 exec_dir: "/home/roi/UNI/robots/ros2/social_ws/exec"
 
-mission_name: "restaurant_waiter_checking"
+mission_name: "restaurant_waiter_checking_mcp"
 goal: "Take the customer's full order and deliver food to the kitchen chef and drink to the bar waiter"
 context: |
   A service robot acting as a waiter in a restaurant.
@@ -53,7 +39,6 @@ useful_info: |
     - main_kitchen
     - bar
 
-
 preconditions:
   - "The plan must NOT assume that the customer is visible or detectable at the start. The robot should actively search for the customer if their location is unknown or not directly observable."
   - "To identify a customer ready to order, the robot may spin until it detects a person."
@@ -65,8 +50,3 @@ postconditions:
   - "When communicating with the chef in the kitchen, the robot must EXCLUSIVELY relay the food items (first dish, second dish) from the customer's order."
   - "When communicating with the bar waiter, the robot must EXCLUSIVELY relay the drink from the customer's order."
   - "To guarantee this strict isolation of information, the robot must capture and memorize the food selection and the drink selection as two entirely separate pieces of information right from the moment the customer speaks."
-
-# ── Execution logging ─────────────────────────────────────────────────────────
-# save_exec: true  → saves generated BT XMLs to <exec_dir>/<mission_name>/<timestamp>/
-save_exec: true
-exec_dir: "/home/roi/UNI/robots/ros2/social_ws/exec"

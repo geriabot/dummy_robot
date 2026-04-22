@@ -1,12 +1,9 @@
-# LLM-guided configuration for dummy_robot
-# orchestrator_type: "llm" tells behavior_architecture to use the LLM planning
-# pipeline (llm_planner + llm_bt_builder + LLMPlanOrchestrator) instead of the
-# fixed state-machine orchestrator defined in dummy_robot_orchestrator.cpp.
+# Mission configuration for dummy_robot (LLM orchestrator mode).
+# orchestrator_type: "llm" tells behavior_architecture to use LLMPlanOrchestrator.
+# This launcher now starts only mission_executor + start_mission.
+# Planner and BT builder nodes should be launched separately when needed.
 #
-# Usage (with LLM nodes launched here):
-#   ros2 launch dummy_robot dummy_robot_llm.launch.py launch_llm_nodes:=true
-#
-# Usage (LLM nodes already running):
+# Usage:
 #   ros2 launch dummy_robot dummy_robot_llm.launch.py
 
 # ── Common fields ─────────────────────────────────────────────────────────────
@@ -24,18 +21,6 @@ bt_nodes_packages:
   - "dummy_bt_nodes"
 bt_control_period_ms: 50
 bt_timeout_sec: 60.0
-
-# ── LLM provider settings ─────────────────────────────────────────────────────
-# planner: breaks the high-level goal into a sequence of sub-task steps.
-planner_llm_provider: "gemini"    # gemini | openai | anthropic | deepseek | ollama
-planner_llm_model: "gemini-2.5-flash"
-planner_llm_api_key: ""           # leave empty to auto-detect from env vars
-                                  # (GEMINI_API_KEY, OPENAI_API_KEY, …)
-
-# bt_builder: generates BT XML for each step using the node_descriptions above.
-bt_builder_llm_provider: "gemini"
-bt_builder_llm_model: "gemini-2.5-flash"
-bt_builder_llm_api_key: ""
 
 # ── Goal definition ───────────────────────────────────────────────────────────
 # Sent to llm_planner at start-up via the /start_mission service.
