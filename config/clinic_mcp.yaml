@@ -1,0 +1,64 @@
+# LLM + MCP-guided configuration for dummy_robot
+# This file is intended for robustness testing in a social robotics reception scenario.
+
+node_name: "dummy_robot_bt_node"
+orchestrator_type: "mcp"
+package_name: "dummy_robot"
+
+plugin_libraries:
+  - "libdummy_bt_nodes_plugin.so"
+
+bt_nodes_packages:
+  - "dummy_bt_nodes"
+bt_control_period_ms: 50
+bt_timeout_sec: 60.0
+
+# -- Mission definition ---------------------------------------------------------
+save_exec: true
+exec_dir: "/home/roi/UNI/robots/ros2/social_ws/exec"
+
+mission_name: "clinic_reception_checking_mcp"
+goal: "Assist clinic visitors by collecting a valid appointment ID and visit reason, validating both, and routing the visitor to the correct area while reporting to reception"
+context: |
+  A social service robot works at a community clinic reception hall.
+  The robot starts at the entrance where visitors arrive and queue.
+  There may be several people nearby, and only some are ready for check-in.
+  The robot must identify one ready visitor, approach politely, and collect:
+    1) appointment ID
+    2) visit reason
+  The robot must validate the appointment ID against the daily appointment list
+  and validate the visit reason against allowed consultation categories.
+  If any value is invalid, missing, or unclear, the robot must apologize,
+  ask for clarification, and continue until both values are valid.
+  Once validated, the robot must go to the reception desk to report ONLY the
+  appointment ID, then escort the visitor to the target consultation area
+  using ONLY the validated visit reason for routing.
+
+useful_info: |
+  Valid appointment IDs: CLN101;CLN205;CLN319;CLN442
+  Allowed visit reasons: general_checkup;lab_test;vaccination;follow_up
+  Reason to destination mapping:
+    - general_checkup -> consultation_room_a
+    - lab_test -> diagnostics_lab
+    - vaccination -> vaccination_room
+    - follow_up -> consultation_room_b
+  Available locations are:
+    - reception_desk
+    - consultation_room_a
+    - diagnostics_lab
+    - vaccination_room
+    - consultation_room_b
+
+preconditions:
+  - "The plan must NOT assume a visitor is immediately visible or ready to interact. The robot should actively search and select one ready visitor."
+  - "If multiple people are detected, the robot must disambiguate the active interlocutor before collecting check-in data."
+  - "The robot must navigate to the selected visitor's location before asking for appointment details."
+  - "If appointment ID or visit reason is missing, ambiguous, or not understood, the robot must ask a clarification question instead of guessing."
+
+postconditions:
+  - "Appointment ID validity must be checked against the internal valid-ID list (useful_info), not by asking the visitor if it is valid."
+  - "Visit reason validity must be checked against the internal allowed-reasons list (useful_info)."
+  - "When confirming with the visitor, first confirm appointment ID, then confirm visit reason."
+  - "When communicating with reception staff, the robot must EXCLUSIVELY relay the appointment ID."
+  - "When routing/escorting the visitor, the robot must use EXCLUSIVELY the validated visit reason and its mapping."
+  - "To guarantee strict information isolation, appointment ID and visit reason must be captured and stored as two separate pieces of information from the start."

@@ -1,0 +1,54 @@
+# LLM + MCP-guided configuration for dummy_robot
+# This file is intended for robustness testing against waiter-like missions.
+
+node_name: "dummy_robot_bt_node"
+orchestrator_type: "mcp"
+package_name: "dummy_robot"
+
+plugin_libraries:
+  - "libdummy_bt_nodes_plugin.so"
+
+bt_nodes_packages:
+  - "dummy_bt_nodes"
+bt_control_period_ms: 50
+bt_timeout_sec: 60.0
+
+# -- Mission definition ---------------------------------------------------------
+save_exec: true
+exec_dir: "/home/roi/UNI/robots/ros2/social_ws/exec"
+
+mission_name: "cafeteria_pickup_checking_mcp"
+goal: "Assist takeaway customers by collecting a valid pickup code and drink request, validating availability, and relaying food and drink to the correct staff"
+context: |
+  A social service robot works in a cafeteria pickup area.
+  The robot starts near the main counter where customers wait for takeaway orders.
+  There may be multiple people nearby, and not all of them are ready to interact.
+  The robot must identify one customer who is ready, approach politely, and collect:
+    1) pickup code
+    2) requested drink
+  The robot must validate the pickup code against pending orders and validate the drink
+  against available drinks. If any value is invalid, the robot must apologize, ask again,
+  and continue until both are valid.
+  Once both are valid, the robot must go to the kitchen to relay ONLY the pickup code
+  (food preparation side), then go to the bar to relay ONLY the drink.
+
+useful_info: |
+  Pending pickup codes: A102;B207;C315;D044
+  Available drinks: water;sparkling_water;cola;orange_juice
+  Available locations are:
+    - main_kitchen
+    - bar
+
+preconditions:
+  - "The plan must NOT assume a customer is immediately visible or ready to interact. The robot should actively search and then explicitly select one ready customer."
+  - "If multiple people are detected, the robot must disambiguate who is the active interlocutor before asking for order details."
+  - "The robot must navigate to the selected customer's location before asking for pickup information."
+  - "If the pickup code or drink is missing, ambiguous, or not understood, the robot must ask a clarification question instead of guessing."
+
+postconditions:
+  - "Pickup code validity must be checked against the internal pending-codes list (useful_info), not by asking the customer if the code is valid."
+  - "Drink validity must be checked against the internal available-drinks list (useful_info)."
+  - "When confirming with the customer, first confirm pickup code, then confirm drink."
+  - "When communicating with the kitchen, the robot must EXCLUSIVELY relay the pickup code."
+  - "When communicating with the bar waiter, the robot must EXCLUSIVELY relay the drink."
+  - "To guarantee strict information isolation, pickup code and drink must be captured and stored as two separate pieces of information from the start."

@@ -2,7 +2,7 @@
 # This file is intended for A/B testing against waiter_mission_checking.yaml.
 
 node_name: "dummy_robot_bt_node"
-orchestrator_type: "mcp_llm_plan_orchestrator"
+orchestrator_type: "mcp"
 package_name: "dummy_robot"
 
 plugin_libraries:
