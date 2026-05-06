@@ -13,6 +13,7 @@ bt_nodes_packages:
 bt_control_period_ms: 50
 bt_timeout_sec: 60.0
 
+
 # ── Mission definition ────────────────────────────────────────────────────────
 save_exec: true
 exec_dir: "/home/roi/UNI/robots/ros2/social_ws/exec"
@@ -24,7 +25,7 @@ context: |
   The robot starts at the service counter. There are 5 tables where customers are seated.
   The kitchen is at the back of the restaurant where the chef works.
   The bar is at the front of the restaurant where the human bar waiter serves drinks.
-  The robot must identify a customer ready to order, approach their table, take their full order (first dish,
+  The robot must just spin until it identifies a customer ready to order, approach their table, take their full order (first dish,
   second dish, and drink).
   Once the order is taken, the robot must check against a list of available items
   to ensure the required items are available to be served. If any item is unavailable, the robot must apologize and take a new order until all requested items are available.
@@ -40,7 +41,7 @@ useful_info: |
     - bar
 
 preconditions:
-  - "The plan must NOT assume that the customer is visible or detectable at the start. The robot should actively search for the customer if their location is unknown or not directly observable."
+  - "The plan must NOT assume that the customer is visible or detectable at the start. The robot should just spin until it identifies a customer ready to order if their location is unknown or not directly observable."
   - "To identify a customer ready to order, the robot may spin until it detects a person."
   - "The robot must explicitly navigate to the detected customer's location before attempting to speak with them."
 

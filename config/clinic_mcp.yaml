@@ -17,40 +17,41 @@ bt_timeout_sec: 60.0
 save_exec: true
 exec_dir: "/home/roi/UNI/robots/ros2/social_ws/exec"
 
-mission_name: "clinic_reception_checking_mcp"
+mission_name: "clinic_receptionist"
 goal: "Assist clinic visitors by collecting a valid appointment ID and visit reason, validating both, and routing the visitor to the correct area while reporting to reception"
 context: |
   A social service robot works at a community clinic reception hall.
+  
   The robot starts at the entrance where visitors arrive and queue.
+  
   There may be several people nearby, and only some are ready for check-in.
-  The robot must identify one ready visitor, approach politely, and collect:
-    1) appointment ID
-    2) visit reason
+  
+  The robot must actively just spin until it finds one ready visitor. Once detected, approach politely, and collect the appointment ID from the visitor.
+  
   The robot must validate the appointment ID against the daily appointment list
-  and validate the visit reason against allowed consultation categories.
-  If any value is invalid, missing, or unclear, the robot must apologize,
+  and, once verified, ask the visitor for their visit reason. If any value is invalid, missing, or unclear, the robot must apologize,
   ask for clarification, and continue until both values are valid.
-  Once validated, the robot must go to the reception desk to report ONLY the
-  appointment ID, then escort the visitor to the target consultation area
-  using ONLY the validated visit reason for routing.
+  
+  Then, the robot must  validate the visit reason against allowed consultation categories. If any value is invalid, missing, or
+  unclear, the robot must apologize, ask for clarification, and continue until both values are valid.
+  
+  The robot must then determine the appropriate destination area from the  validated visit reason
+  before escorting the visitor.
+  
+  Then, the robot must go to the reception desk to report ONLY the
+  appointment ID, then face the visitor to tell they are going to be escorted, and finally escort the visitor 
+  to the target consultation area.
+  
+  Once there, just spin until facing the visitor, and once the visitor is being faced, politely farewell and come back to the reception desk alone.
 
 useful_info: |
   Valid appointment IDs: CLN101;CLN205;CLN319;CLN442
   Allowed visit reasons: general_checkup;lab_test;vaccination;follow_up
-  Reason to destination mapping:
-    - general_checkup -> consultation_room_a
-    - lab_test -> diagnostics_lab
-    - vaccination -> vaccination_room
-    - follow_up -> consultation_room_b
-  Available locations are:
+  Available known locations are:
     - reception_desk
-    - consultation_room_a
-    - diagnostics_lab
-    - vaccination_room
-    - consultation_room_b
 
 preconditions:
-  - "The plan must NOT assume a visitor is immediately visible or ready to interact. The robot should actively search and select one ready visitor."
+  - "The plan must NOT assume a visitor is immediately visible or ready to interact. The robot should actively spin until it finds one ready visitor."
   - "If multiple people are detected, the robot must disambiguate the active interlocutor before collecting check-in data."
   - "The robot must navigate to the selected visitor's location before asking for appointment details."
   - "If appointment ID or visit reason is missing, ambiguous, or not understood, the robot must ask a clarification question instead of guessing."

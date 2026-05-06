@@ -1,0 +1,13 @@
+# ── Locations ─────────────────────────────────────────────────────────────────
+
+static_transforms:
+  - base_frame: "map"
+    child_frame: "main_kitchen"
+    x: -5.8
+    y: -8.7
+    z: 0.0
+  - base_frame: "map"
+    child_frame: "bar"
+    x: 7.7
+    y: -0.7
+    z: 0.0

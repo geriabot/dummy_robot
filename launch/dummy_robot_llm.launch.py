@@ -28,11 +28,13 @@ def launch_setup(context, *args, **kwargs):
 
     This launcher is intentionally minimal and only starts:
         1. mission_executor
-        2. start_mission (delayed)
+        2. static_tf_publisher
+        3. start_mission (delayed)
 
     Planner and BT builder nodes are expected to be started separately.
     """
     mission_file = LaunchConfiguration('mission_file').perform(context)
+    tf_file = LaunchConfiguration('tf_file').perform(context)
     skills_file = LaunchConfiguration('skills_file').perform(context)
     save_exec_arg = LaunchConfiguration('save_exec').perform(context).lower() == 'true'
 
@@ -62,8 +64,20 @@ def launch_setup(context, *args, **kwargs):
         arguments=executor_args,
     ))
 
-    # ── 2. Goal sender ─────────────────────────────────────────────────────────
-    nodes.append(TimerAction(
+    # ── 2. Static TF Publisher ────────────────────────────────────────────────
+    nodes.append(Node(
+        package='behavior_architecture',
+        executable='static_tf_publisher',
+        name='static_tf_publisher',
+        output='screen',
+        emulate_tty=True,
+        parameters=[{
+            'tf_file': tf_file,
+        }],
+    ))
+
+    # ── 3. Goal sender ─────────────────────────────────────────────────────────
+    nodes.append(TimerAction( # Delay start_mission to ensure mission_executor is up and running
         period=3.0,
         actions=[Node(
             package='behavior_architecture',
@@ -87,8 +101,9 @@ def generate_launch_description():
     This launcher does not start planner/builder LLM nodes.
     """
     pkg_dir = get_package_share_directory('dummy_robot')
-    default_config = os.path.join(pkg_dir, 'config', 'waiter_mission_checking.yaml')
+    default_config = os.path.join(pkg_dir, 'config', 'waiter_mission_checking_mcp.yaml')
     default_skills = os.path.join(pkg_dir, 'config', 'dummy_robot_skills.yaml')
+    default_tf = os.path.join(pkg_dir, 'config', 'static_transforms.yaml')
 
     mission_file_arg = DeclareLaunchArgument(
         'mission_file',
@@ -105,6 +120,12 @@ def generate_launch_description():
         description='Path to the YAML file listing the robot skills (skills: [...]).',
     )
 
+    tf_file_arg = DeclareLaunchArgument(
+        'tf_file',
+        default_value=default_tf,
+        description='Path to the YAML file with static transforms.',
+    )
+
     save_exec_arg = DeclareLaunchArgument(
         'save_exec',
         default_value='false',
@@ -117,6 +138,7 @@ def generate_launch_description():
     return LaunchDescription([
         mission_file_arg,
         skills_file_arg,
+        tf_file_arg,
         save_exec_arg,
         OpaqueFunction(function=launch_setup),
     ])
