@@ -8,7 +8,7 @@
 
 # ── Common fields ─────────────────────────────────────────────────────────────
 node_name: "dummy_robot_bt_node"
-orchestrator_type: "llm"
+orchestrator_type: "mcp"
 package_name: "dummy_robot"
 
 plugin_libraries:
@@ -20,7 +20,7 @@ bt_control_period_ms: 50
 bt_timeout_sec: 60.0
 
 # ── Goal definition ───────────────────────────────────────────────────────────
-mission_name: "museum_guide"
+mission_name: "museum_guide_mpc"
 goal: "Find a lost visitor, ask them what exhibit they are looking for, escort them to that exhibit, and report back to the information desk"
 context: |
   A service robot acting as a guide in a museum.

@@ -25,6 +25,6 @@ skills:
   - "Extract semantic information fields from free text using LLM (names, items, intents), excluding navigation-frame resolution"
   - "Spin in place"
   - "Follow a moving person or entity to maintain relative distance (tracking behavior, not destination-leading navigation)"
-  - "Estimate relative geometry to a detected target frame (e.g. distance and bearing) for tracking and control decisions"
+  - "Detect whether a target frame has remained static for a minimum duration"
   - "Evaluate relative tracking conditions against a target frame (e.g. orientation alignment and proximity thresholds)"
-  - "Execute reactive local motion primitives for tracking (e.g. rotate-to-heading and controlled forward motion)"
+  - "Force a controlled plan fail only when the current mission step explicitly authorizes it after bounded retries"

@@ -1,0 +1,70 @@
+# Mission configuration for dummy_robot (LLM orchestrator mode).
+# Variant focused on clearer semantic constraints for plan generation.
+#
+# Usage:
+#   ros2 launch dummy_robot dummy_robot_llm.launch.py \
+#     mission_file:=$(ros2 pkg prefix dummy_robot)/share/dummy_robot/config/waiter_mission_semantic.yaml
+
+node_name: "dummy_robot_bt_node"
+orchestrator_type: "llm"
+package_name: "dummy_robot"
+
+plugin_libraries:
+  - "libdummy_bt_nodes_plugin.so"
+
+bt_nodes_packages:
+  - "dummy_bt_nodes"
+bt_control_period_ms: 50
+bt_timeout_sec: 60.0
+
+save_exec: true
+exec_dir: "/home/roi/UNI/robots/ros2/social_ws/exec"
+
+mission_name: "restaurant_waiter_2"
+goal: "Serve one customer order end-to-end with strict food/drink information separation"
+
+context: |
+  ROLE: Service robot acting as a waiter in a restaurant.
+  START STATE: Robot starts at service_counter.
+  ENVIRONMENT:
+    - 5 customer tables.
+    - Kitchen location: main_kitchen (chef receives only food items).
+    - Bar location: bar (bar waiter receives only drink items).
+
+  MISSION INTENT:
+    1) Identify one customer ready to order.
+    2) Approach that customer.
+    3) Capture one full order (drink, main dish, dessert).
+    4) Confirm the interpreted order with the customer.
+    5) Validate availability of requested items.
+    6) If available: relay only food to kitchen, then only drink to bar.
+    7) If unavailable: apologize and terminate mission through controlled plan fail.
+
+  DATA CONTRACT (MANDATORY):
+    - Keep food and drink as separate memories from first extraction.
+    - Do not merge food and drink into a single message field.
+    - Food data is for kitchen communication only.
+    - Drink data is for bar communication only.
+
+useful_info: |
+  Available named locations:
+    - service_counter
+    - main_kitchen
+    - bar
+
+  Output quality requirements for planning:
+    - Prefer simple sequential steps with one main intention per step.
+    - Include explicit perception before interaction when target is initially unknown.
+    - Use explicit verification/decision step before delivery actions.
+
+preconditions:
+  - "Initial visibility of the customer is unknown; the plan must not assume customer is already detectable."
+  - "Customer acquisition must be active: configure person search and spin/detect until one ready customer is found."
+  - "The robot must navigate to the detected customer location before asking for order details."
+  - "Order confirmation with the customer is mandatory before availability checking."
+
+postconditions:
+  - "Kitchen communication contains only food items from the confirmed order."
+  - "Bar communication contains only drink items from the confirmed order."
+  - "Food and drink are captured, stored, and propagated as distinct data elements throughout execution."
+  - "If any requested item is unavailable, the mission ends with apology plus controlled plan fail; no delivery communication is executed."

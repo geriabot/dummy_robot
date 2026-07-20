@@ -1,0 +1,62 @@
+# Mission configuration for dummy_robot (LLM orchestrator mode).
+# Variant 3: constraint-driven semantics (less procedural, more planner freedom).
+
+node_name: "dummy_robot_bt_node"
+orchestrator_type: "llm"
+package_name: "dummy_robot"
+
+plugin_libraries:
+  - "libdummy_bt_nodes_plugin.so"
+
+bt_nodes_packages:
+  - "dummy_bt_nodes"
+bt_control_period_ms: 50
+bt_timeout_sec: 60.0
+
+save_exec: true
+exec_dir: "/home/roi/UNI/robots/ros2/social_ws/exec"
+
+mission_name: "restaurant_waiter_3"
+goal: "Serve one customer order with strict separation between food communication and drink communication"
+
+context: |
+  A service robot acts as a waiter in a restaurant.
+  The robot starts at service_counter.
+  The environment includes customer tables, a kitchen at main_kitchen, and a bar at bar.
+
+  Mission objective:
+  - Complete one customer order cycle from acquisition to handoff.
+  - Preserve strict information isolation: food information is communicated only to kitchen staff; drink information is communicated only to bar staff.
+
+  Reasoning constraints:
+  - The customer may not be initially visible; planning must include perception before interaction when location is unknown.
+  - Interaction actions must be grounded on actual target localization.
+  - Availability must be validated before any delivery communication.
+  - If requested items are not available, mission must terminate through apology plus controlled fail.
+
+  Data semantics contract:
+  - Represent food and drink as different data entities from first extraction.
+  - Keep both entities separated through all intermediate reasoning and action steps.
+  - Do not use a combined order payload for final handoff communications.
+
+useful_info: |
+  Named locations:
+    - service_counter
+    - main_kitchen
+    - bar
+
+  Planning quality expectations:
+    - Prefer simple, verifiable, single-intention steps.
+    - Use explicit producer/consumer data flow between steps.
+    - Avoid implicit assumptions about person visibility or item availability.
+
+preconditions:
+  - "Do not assume any customer is visible at mission start."
+  - "Before order capture, the selected customer must be detected and physically approached."
+  - "Before handoff to kitchen/bar, order interpretation must be explicitly confirmed with the customer."
+
+postconditions:
+  - "Kitchen receives only confirmed food items."
+  - "Bar receives only confirmed drink items."
+  - "No handoff communication occurs if availability validation fails."
+  - "Mission ends in a controlled fail path when unavailability is detected."
