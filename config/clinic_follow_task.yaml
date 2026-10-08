@@ -1,0 +1,65 @@
+# LLM + MCP-guided configuration for dummy_robot
+# Mission focused on robust person-following in a clinic scenario.
+
+node_name: "dummy_robot_bt_node"
+orchestrator_type: "mcp"
+package_name: "dummy_robot"
+
+plugin_libraries:
+  - "libdummy_bt_nodes_plugin.so"
+
+bt_nodes_packages:
+  - "dummy_bt_nodes"
+bt_control_period_ms: 50
+bt_timeout_sec: 60.0
+replan_active: false
+
+# Si se debe reiniciar desde el paso 0 tras FORCED_FAILURE (true por defecto, false = replan)
+restart_after_forced: true
+
+# -- Mission definition ---------------------------------------------------------
+save_exec: true
+exec_dir: "/home/roi/UNI/robots/ros2/social_ws/exec"
+
+mission_name: "clinic_follow_task"
+goal: "Assist one clinic visitor by validating appointment ID, requesting handover of belongings for carry assistance, explicitly warning before follow starts, following the visitor until arrival is inferred from 5+ seconds of visitor remaining static, confirming arrival, and returning to reception."
+context: |
+  A social service robot works at a community clinic reception hall.
+
+  The robot starts near the reception desk where visitors arrive and queue.
+
+  Execute this mission as a clear sequential workflow:
+  
+  First, actively search for one ready visitor by spinning in place until one ready person is detected.
+  
+  Then, approach the selected visitor and collect their appointment ID.
+  
+  With the collected information, validate the appointment ID against the daily appointment list. If the appointment ID is invalid, politely end the interaction, force plan failure, and return to reception.
+  
+  If the appointment ID is valid, request the visitor to hand over their belongings for carry assistance.
+  
+  Once belongings are handed over, inform the visitor you will follow them to their destination and explicitly warn them that follow behavior will begin, asking them to start walking.
+
+  Start person-led follow (visitor leads, robot follows) while maintaining at least 1 meter distance. During active follow, continuously monitor whether the visitor remains static for more than 5 seconds. If that condition is met, stop follow, give a short arrival confirmation, politely end interaction, and return to reception.
+
+  Do not add optional branches not defined above.
+useful_info: |
+  Valid appointment IDs: CLN101;CLN205;CLN319;CLN442
+  Available known locations are:
+    - reception_desk
+
+preconditions:
+  - "The plan must NOT assume a visitor is immediately visible or ready to interact. For search, the robot must spin in place and keep spinning until it can explicitly select one ready visitor."
+  - "The robot must navigate to the selected visitor's location before asking for appointment details."
+  - "The plan must NOT use any forced plan abort unless the mission description explicitly defines that abort condition and its retry bound. In this mission, forced abort is only allowed for appointment validation after 3 failed attempts."
+  - "Only appointment validation may force a plan failure, and only after exhausting 3 total ID attempts. No other step may force plan failure."
+  - "During the follow phase, destination-arrival monitoring (person static for >5s) should be integrated with follow control, avoiding unnecessary decomposition into disconnected phases."
+  - "After validating appointment ID, the robot must directly request the visitor to hand over their belongings before any follow behavior starts."
+  - "BEFORE starting follow mode, the robot MUST explicitly warn/notify the visitor that follow behavior will begin by saying something like: 'I will now start following you to help carry your things. Please begin walking.' The visitor must be informed before any follow action starts."
+
+postconditions:
+  - "Appointment ID validity must be checked against the internal valid-ID list in useful_info."
+  - "The robot must confirm a valid appointment ID before any follow behavior is executed."
+  - "Only after the explicit warning, the robot must perform person-led follow behavior to the mapped destination."
+  - "Arrival detection must remain coupled to the active follow phase (integrated follow behavior)."
+  - "During follow mode, arrival at destination must be confirmed only after the selected visitor is static for more than 5 seconds."

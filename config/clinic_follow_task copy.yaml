@@ -1,0 +1,64 @@
+# LLM + MCP-guided configuration for dummy_robot
+# Mission focused on robust person-following in a clinic scenario.
+
+node_name: "dummy_robot_bt_node"
+orchestrator_type: "mcp"
+package_name: "dummy_robot"
+
+plugin_libraries:
+  - "libdummy_bt_nodes_plugin.so"
+
+bt_nodes_packages:
+  - "dummy_bt_nodes"
+bt_control_period_ms: 50
+bt_timeout_sec: 60.0
+
+# Si se debe reiniciar desde el paso 0 tras FORCED_FAILURE (true por defecto, false = replan)
+restart_after_forced: true
+
+# -- Mission definition ---------------------------------------------------------
+save_exec: true
+exec_dir: "/home/roi/UNI/robots/ros2/social_ws/exec"
+
+mission_name: "clinic_follow_task"
+goal: "Assist clinic visitors by validating appointment ID and directly requesting them to hand over their things for carry assistance. Once the person has handed over their things, warn them that follow behavior will begin, then follow the visitor until destination is inferred from 5+ seconds of visitor remainin static (in the same position), then perform a simple arrival confirmation and come back to the reception desk."
+context: |
+  A social service robot works at a community clinic reception hall.
+
+  The robot starts near the reception desk where visitors arrive and queue.
+
+  The robot must actively search and select one ready person by spinning in
+  place (in-place spin) until a ready person is detected, then approach politely
+  and collect the visitor's appointment ID.
+
+  The robot must validate the appointment ID against the daily appointment list.
+  If the appointment ID is invalid (not available in the list), the robot must communicate the issue, and ask again. After 3 attempts, if the visitor fails to provide a valid appointment ID, the robot must politely end the interaction, force a plan failure and navigate back to the reception desk.
+
+  Once the appointment ID is valid, the robot must ask the visitor whether they need assistance carrying their bag. If the visitor sais yes, the robot must ask them to their stuff in the robot's basket. If the visitor does not need assistance, the robot  must politely end the interaction and force a plan failure and navigate back to the reception desk.
+    
+  In case the robot carries the visitor's bag, they will be scorted. Then, the robot must EXPLICITLY WARN the visitor before starting a follow behavior by saying something like:
+  "I will now start following you while I bring your stuff. Please start walking to your destination."
+
+  Then the robot must FOLLOW the visitor (visitor leads, robot follows) while maintaining a minimum distance of 1 meter . While following, the robot must continuously infer arrival at destination if the visitor has remained static for more than 5 seconds. In that case, following must stop.
+  
+  Once follow is complete, the robot must say a short confirmation (for example, "We have arrived. I hope I was helpful carrying your things. Please pick them up."). Then it must politely end the interaction and navigate back to the reception desk.
+useful_info: |
+  Valid appointment IDs: CLN101;CLN205;CLN319;CLN442
+  Available known locations are:
+    - reception_desk
+
+preconditions:
+  - "The plan must NOT assume a visitor is immediately visible or ready to interact. For search, the robot must spin in place and keep spinning until it can explicitly select one ready visitor."
+  - "The robot must navigate to the selected visitor's location before asking for appointment details."
+  - "The plan must NOT use any forced plan abort unless the mission description explicitly defines that abort condition and its retry bound. In this mission, forced abort is only allowed for appointment validation after 3 failed attempts."
+  - "Only the appointment validation may a plan fail, and only after exhausting its 3 retries. No other step may do it."
+  - "During the follow phase, destination-arrival monitoring (person static for >5s) should be integrated with follow control, avoiding unnecessary decomposition into disconnected phases."
+  - "After validating appointment ID, the robot must directly request the visitor to hand over their things before any follow behavior starts."
+  - "BEFORE starting follow mode, the robot MUST explicitly warn/notify the visitor that follow behavior will begin by saying something like: 'I will now start following you to help carry your things. Please begin walking.' The visitor must be informed before any follow action starts."
+
+postconditions:
+  - "Appointment ID validity must be checked against the internal valid-ID list (useful_info),"
+  - "The robot must confirm appointment ID before any movement action is executed."
+  - "Only after the explicit warning, the robot must perform person-led follow behavior to the mapped destination."
+  - "Arrival detection must remain coupled to the active follow phase (integrated follow behavior)."
+  - "During follow mode, arrival at destination must be confirmed only after the selected visitor is static for more than 5 seconds."

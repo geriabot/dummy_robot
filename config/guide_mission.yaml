@@ -1,17 +1,14 @@
-# LLM-guided configuration for dummy_robot — mission 2
-# Scenario: robot guide in a museum escorts a lost visitor to the requested exhibit,
-# then checks back at the information desk to report the assistance.
-# Used to stress-test the LLM planning + BT generation pipeline with a different
-# context and data-flow pattern from llm_mission.yaml.
+# Mission configuration for dummy_robot — museum guide scenario.
+# Uses orchestrator_type: "llm" and is intended to be consumed by mission_executor.
+# The launcher starts mission_executor + start_mission only; planner and BT builder
+# can run separately.
 #
-# Usage (with LLM nodes launched here):
-#   ros2 launch dummy_robot dummy_robot_llm.launch.py \
-#     mission_config:=$(ros2 pkg prefix dummy_robot)/share/dummy_robot/config/llm_mission_2.yaml \
-#     launch_llm_nodes:=true
+# Usage:
+#   ros2 launch dummy_robot dummy_robot_llm.launch.py mission_file:=guide_mission.yaml
 
 # ── Common fields ─────────────────────────────────────────────────────────────
 node_name: "dummy_robot_bt_node"
-orchestrator_type: "llm"
+orchestrator_type: "mcp"
 package_name: "dummy_robot"
 
 plugin_libraries:
@@ -22,17 +19,8 @@ bt_nodes_packages:
 bt_control_period_ms: 50
 bt_timeout_sec: 60.0
 
-# ── LLM provider settings ─────────────────────────────────────────────────────
-planner_llm_provider: "gemini"
-planner_llm_model: "gemini-2.5-flash"
-planner_llm_api_key: ""
-
-bt_builder_llm_provider: "gemini"
-bt_builder_llm_model: "gemini-2.5-flash"
-bt_builder_llm_api_key: ""
-
 # ── Goal definition ───────────────────────────────────────────────────────────
-mission_name: "museum_guide"
+mission_name: "museum_guide_mpc"
 goal: "Find a lost visitor, ask them what exhibit they are looking for, escort them to that exhibit, and report back to the information desk"
 context: |
   A service robot acting as a guide in a museum.
