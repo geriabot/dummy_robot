@@ -45,6 +45,10 @@ ament_target_dependencies(${PROJECT_NAME}_bt_nodes ${dependencies})
 # Required for BehaviorTree.CPP plugin export
 target_compile_definitions(${PROJECT_NAME}_bt_nodes PRIVATE BT_PLUGIN_EXPORT)
 
+# The orchestrator registers LogMessageAction itself: link the library that defines it, so that
+# loading the orchestrator does not depend on the BT plugin being loaded first
+target_link_libraries(${PROJECT_NAME}_orchestrator ${PROJECT_NAME}_bt_nodes)
+
 # Install libraries
 install(TARGETS ${PROJECT_NAME}_orchestrator ${PROJECT_NAME}_bt_nodes
   ARCHIVE DESTINATION lib
