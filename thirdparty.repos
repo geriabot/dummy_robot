@@ -2,4 +2,4 @@ repositories:
   koch2:
     type: git
     url: https://github.com/geriabot/koch2.git
-    version: devel
+    version: main
