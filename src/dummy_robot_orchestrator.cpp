@@ -36,8 +36,12 @@ rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
 DummyRobotOrchestrator::on_configure(const rclcpp_lifecycle::State & state)
 {
   if (runners_.empty()) {
+    // LogMessage is also in the plugin libdummy_robot_bt_nodes.so, which the mission
+    // configuration loads before this registrar runs: register it only when no plugin did
     auto registrar = [](BT::BehaviorTreeFactory & factory) {
-      factory.registerNodeType<bt_nodes::LogMessageAction>("LogMessage");
+      if (factory.manifests().count("LogMessage") == 0) {
+        factory.registerNodeType<bt_nodes::LogMessageAction>("LogMessage");
+      }
     };
 
     // Prefer config from blackboard (set by mission_executor or main)
