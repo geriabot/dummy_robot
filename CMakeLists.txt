@@ -1,6 +1,22 @@
 cmake_minimum_required(VERSION 3.8)
 project(dummy_robot)
 
+# link_ament_dependencies() is no longer part of ament_cmake since ROS 2 Lyrical: link the
+# targets that each dependency exports (<pkg>::<pkg>, the <pkg>_TARGETS of interface packages,
+# or its include directories and libraries). Works the same on Jazzy and Humble.
+function(link_ament_dependencies target)
+  foreach(dep ${ARGN})
+    if(TARGET ${dep}::${dep})
+      target_link_libraries(${target} ${dep}::${dep})
+    elseif(DEFINED ${dep}_TARGETS)
+      target_link_libraries(${target} ${${dep}_TARGETS})
+    else()
+      target_include_directories(${target} PUBLIC ${${dep}_INCLUDE_DIRS})
+      target_link_libraries(${target} ${${dep}_LIBRARIES})
+    endif()
+  endforeach()
+endfunction()
+
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
@@ -33,14 +49,14 @@ include_directories(
 add_library(${PROJECT_NAME}_orchestrator SHARED
   src/dummy_robot_orchestrator.cpp
 )
-ament_target_dependencies(${PROJECT_NAME}_orchestrator ${dependencies})
+link_ament_dependencies(${PROJECT_NAME}_orchestrator ${dependencies})
 
 # Dummy robot BT nodes plugin library
 add_library(${PROJECT_NAME}_bt_nodes SHARED
   src/bt_nodes/bt_plugins.cpp
   src/bt_nodes/log_message_action.cpp
 )
-ament_target_dependencies(${PROJECT_NAME}_bt_nodes ${dependencies})
+link_ament_dependencies(${PROJECT_NAME}_bt_nodes ${dependencies})
 
 # Required for BehaviorTree.CPP plugin export
 target_compile_definitions(${PROJECT_NAME}_bt_nodes PRIVATE BT_PLUGIN_EXPORT)
@@ -63,7 +79,7 @@ add_executable(dummy_robot_main
   src/bt_nodes/log_message_action.cpp
 )
 
-ament_target_dependencies(dummy_robot_main ${dependencies})
+link_ament_dependencies(dummy_robot_main ${dependencies})
 target_link_libraries(dummy_robot_main yaml-cpp)
 
 # Install executables
