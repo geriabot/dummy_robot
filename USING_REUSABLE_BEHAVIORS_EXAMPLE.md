@@ -1,13 +1,13 @@
 # Example: Using Reusable Behaviors in dummy_robot
 
-This example demonstrates how to use reusable behaviors from the `behavior_architecture` catalogue in your own robot package.
+This example demonstrates how to use reusable behaviors from the `koch2` catalogue in your own robot package.
 
 ## What This Example Shows
 
 The `dummy_mission_with_follow.yaml` config demonstrates:
 
 1. **Loading your own behaviors** from your package
-2. **Loading reusable behaviors** from `behavior_architecture` package
+2. **Loading reusable behaviors** from `koch2` package
 3. **Using per-behavior package specification** to mix behaviors from different packages
 
 ## Configuration
@@ -26,15 +26,15 @@ behaviors:
   - name: "state2_runner"
     behavior_file: "behaviors/dummy_state2.xml"
   
-  # Reusable behavior from behavior_architecture
+  # Reusable behavior from koch2
   - name: "follow_runner"
     behavior_file: "behaviors/reusable/follow_behavior.xml"
-    package_name: "behavior_architecture"  # Load from different package!
+    package_name: "koch2"  # Load from different package!
 ```
 
 ## Key Points
 
-✅ **No copying needed** - The follow_behavior.xml stays in behavior_architecture  
+✅ **No copying needed** - The follow_behavior.xml stays in koch2  
 ✅ **Per-behavior package** - Each behavior can specify its source package  
 ✅ **Single source of truth** - Updates to follow_behavior benefit all users  
 ✅ **Clean separation** - Your behaviors vs. shared behaviors
@@ -44,7 +44,7 @@ behaviors:
 ```bash
 # Build both packages
 cd ~/social_nao_ws
-colcon build --packages-select behavior_architecture dummy_robot
+colcon build --packages-select koch2 dummy_robot
 source install/setup.bash
 
 # Run with the reusable follow behavior
@@ -93,6 +93,6 @@ case State::FOLLOW:
 
 ## See Also
 
-- [behavior_architecture behaviors catalogue](../../behavior_architecture/behaviors/README.md)
-- [Using Reusable Behaviors Guide](../../behavior_architecture/docs/USING_REUSABLE_BEHAVIORS.md)
-- [behavior_architecture README](../../behavior_architecture/README.md)
+- [koch2 behaviors catalogue](../../koch2/behaviors/README.md)
+- [Using Reusable Behaviors Guide](../../koch2/docs/USING_REUSABLE_BEHAVIORS.md)
+- [koch2 README](../../koch2/README.md)

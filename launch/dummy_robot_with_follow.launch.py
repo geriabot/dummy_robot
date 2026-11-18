@@ -22,9 +22,9 @@ from launch_ros.actions import Node
 
 def generate_launch_description():
     """
-    Launch dummy robot with reusable follow_behavior from behavior_architecture.
+    Launch dummy robot with reusable follow_behavior from koch2.
     
-    This demonstrates how to use behaviors from the behavior_architecture 
+    This demonstrates how to use behaviors from the koch2 
     reusable catalogue in your own robot package.
     """
     
@@ -32,9 +32,9 @@ def generate_launch_description():
     pkg_dir = get_package_share_directory('dummy_robot')
     config_file = os.path.join(pkg_dir, 'config', 'dummy_mission_with_follow.yaml')
     
-    # Mission executor node (from behavior_architecture package)
+    # Mission executor node (from koch2 package)
     mission_executor_node = Node(
-        package='behavior_architecture',
+        package='koch2',
         executable='mission_executor',
         output='screen',
         emulate_tty=True,

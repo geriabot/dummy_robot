@@ -1,5 +1,5 @@
 # Mission configuration for dummy_robot (LLM orchestrator mode).
-# orchestrator_type: "llm" tells behavior_architecture to use LLMPlanOrchestrator.
+# orchestrator_type: "llm" tells koch2 to use LLMPlanOrchestrator.
 # This launcher now starts only mission_executor + start_mission.
 # Planner and BT builder nodes should be launched separately when needed.
 #

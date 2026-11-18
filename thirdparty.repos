@@ -1,5 +1,5 @@
 repositories:
-  behavior_architecture:
+  koch2:
     type: git
-    url: https://github.com/geriabot/behavior_architecture.git
-    version: main
+    url: https://github.com/geriabot/koch2.git
+    version: devel

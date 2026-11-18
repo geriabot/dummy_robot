@@ -3,7 +3,7 @@
 <package format="3">
   <name>dummy_robot</name>
   <version>0.1.0</version>
-  <description>Example robot behavior package using behavior_architecture</description>
+  <description>Example robot behavior package using koch2</description>
   <maintainer email="your_email@example.com">Your Name</maintainer>
   <license>Apache-2.0</license>
 
@@ -12,7 +12,7 @@
   <depend>rclcpp</depend>
   <depend>rclcpp_lifecycle</depend>
   <depend>ament_index_cpp</depend>
-  <depend>behavior_architecture</depend>
+  <depend>koch2</depend>
   <depend>yaml-cpp</depend>
   <depend>behaviortree_cpp</depend>
   <exec_depend>dummy_bt_nodes</exec_depend>

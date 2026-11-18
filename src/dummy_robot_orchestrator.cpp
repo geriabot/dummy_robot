@@ -13,16 +13,16 @@
 // limitations under the License.
 
 #include "dummy_robot/dummy_robot_orchestrator.hpp"
-#include "behavior_architecture/behavior_config.hpp"
-#include "behavior_architecture/behavior_runner.hpp"
-#include "behavior_architecture/orchestrator_factory.hpp"
+#include "koch2/behavior_config.hpp"
+#include "koch2/behavior_runner.hpp"
+#include "koch2/orchestrator_factory.hpp"
 #include "dummy_robot/bt_nodes/log_message_action.hpp"
 
 namespace dummy_robot
 {
 
 // Register this orchestrator with the factory
-static behavior_architecture::OrchestratorRegistrar<DummyRobotOrchestrator> 
+static koch2::OrchestratorRegistrar<DummyRobotOrchestrator> 
   dummy_robot_registrar("dummy_robot");
 
 DummyRobotOrchestrator::DummyRobotOrchestrator(BT::Blackboard::Ptr blackboard)
@@ -41,7 +41,7 @@ DummyRobotOrchestrator::on_configure(const rclcpp_lifecycle::State & state)
     };
 
     // Prefer config from blackboard (set by mission_executor or main)
-    std::vector<behavior_architecture::BehaviorConfig> behaviors;
+    std::vector<koch2::BehaviorConfig> behaviors;
     std::vector<std::string> plugins;
     std::string pkg_name = "dummy_robot";
 
@@ -58,7 +58,7 @@ DummyRobotOrchestrator::on_configure(const rclcpp_lifecycle::State & state)
     }
 
     for (auto & bc : behaviors) {
-      auto runner = std::make_shared<behavior_architecture::BehaviorRunner>(
+      auto runner = std::make_shared<koch2::BehaviorRunner>(
         blackboard_, bc.name, bc.behavior_file, plugins,
         bc.package_name.empty() ? pkg_name : bc.package_name,
         bc.control_period_ms, registrar);

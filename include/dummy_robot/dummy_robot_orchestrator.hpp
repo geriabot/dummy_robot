@@ -15,7 +15,7 @@
 #ifndef DUMMY_ROBOT__DUMMY_ROBOT_ORCHESTRATOR_HPP_
 #define DUMMY_ROBOT__DUMMY_ROBOT_ORCHESTRATOR_HPP_
 
-#include "behavior_architecture/base_orchestrator.hpp"
+#include "koch2/base_orchestrator.hpp"
 
 namespace dummy_robot
 {
@@ -25,7 +25,7 @@ namespace dummy_robot
  * 
  * Simple finite state machine with two states that execute different behaviors
  */
-class DummyRobotOrchestrator : public behavior_architecture::BaseOrchestrator
+class DummyRobotOrchestrator : public koch2::BaseOrchestrator
 {
 public:
   /**

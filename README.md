@@ -1,12 +1,12 @@
 # Dummy Robot
 
-**Reference example package demonstrating the usage of the `behavior_architecture` framework with YAML-configured mission executor.**
+**Reference example package demonstrating the usage of the `koch2` framework with YAML-configured mission executor.**
 
-> **Note**: This package serves as a reference implementation for developers who want to use `behavior_architecture` in their own robot projects. It provides a complete, working example of how to structure your package, create orchestrators, define behavior trees, implement custom BT nodes, and configure everything via YAML.
+> **Note**: This package serves as a reference implementation for developers who want to use `koch2` in their own robot projects. It provides a complete, working example of how to structure your package, create orchestrators, define behavior trees, implement custom BT nodes, and configure everything via YAML.
 
 ## Overview
 
-This package implements a simple two-state behavior system for a dummy robot using the behavior_architecture framework. It showcases the recommended approach: using the generic `mission_executor` with YAML configuration instead of writing custom main() programs.
+This package implements a simple two-state behavior system for a dummy robot using the koch2 framework. It showcases the recommended approach: using the generic `mission_executor` with YAML configuration instead of writing custom main() programs.
 
 ## Package Structure
 
@@ -35,7 +35,7 @@ dummy_robot/
 
 ## Dependencies
 
-- `behavior_architecture`: Provides BaseOrchestrator and BehaviorRunner classes
+- `koch2`: Provides BaseOrchestrator and BehaviorRunner classes
 - `rclcpp_lifecycle`: ROS 2 lifecycle node management
 - `behaviortree_cpp`: BehaviorTree.CPP library
 - `yaml-cpp`: YAML config parsing
@@ -56,8 +56,8 @@ git clone <your-repo-url> dummy_robot
 # Import third-party dependencies
 vcs import < dummy_robot/thirdparty.repos
 
-# The behavior_architecture package has its own dependencies
-vcs import < behavior_architecture/thirdparty.repos
+# The koch2 package has its own dependencies
+vcs import < koch2/thirdparty.repos
 ```
 
 ## Building
@@ -92,7 +92,7 @@ ros2 run dummy_robot dummy_robot_main
 ### Components
 
 1. **DummyRobotOrchestrator**: FSM that manages state transitions
-   - Inherits from `behavior_architecture::BaseOrchestrator`
+   - Inherits from `koch2::BaseOrchestrator`
    - Implements a simple 4-state FSM: INIT → STATE_1 → STATE_2 → STOP
    - Registered with factory for dynamic loading
 
@@ -127,9 +127,9 @@ The orchestrator is registered with the factory for dynamic loading:
 
 ```cpp
 // In dummy_robot_orchestrator.cpp
-#include "behavior_architecture/orchestrator_factory.hpp"
+#include "koch2/orchestrator_factory.hpp"
 
-static behavior_architecture::OrchestratorRegistrar<DummyRobotOrchestrator> 
+static koch2::OrchestratorRegistrar<DummyRobotOrchestrator> 
   dummy_robot_registrar("dummy_robot");
 ```
 
@@ -216,7 +216,7 @@ def generate_launch_description():
     
     return LaunchDescription([
         Node(
-            package='behavior_architecture',
+            package='koch2',
             executable='mission_executor',  # Generic executable
             output='screen',
             emulate_tty=True,
@@ -274,7 +274,7 @@ The package includes an example of creating custom BehaviorTree nodes in the `bt
      factory.registerNodeType<dummy_robot::bt_nodes::LogMessageAction>("LogMessage");
    };
    
-   auto runner = std::make_shared<behavior_architecture::BehaviorRunner>(
+   auto runner = std::make_shared<koch2::BehaviorRunner>(
      blackboard, "runner_name", "path.xml", plugins, 
      "package_name", 50, register_custom_nodes
    );
@@ -301,7 +301,7 @@ Edit the XML files in `behaviors/` to change robot actions. You can use any Beha
 Modify the last parameter when creating BehaviorRunner instances in `dummy_robot_main.cpp`:
 
 ```cpp
-auto state1_runner = std::make_shared<behavior_architecture::BehaviorRunner>(
+auto state1_runner = std::make_shared<koch2::BehaviorRunner>(
   blackboard, "state1_runner", "behaviors/dummy_state1.xml", 
   plugins, "dummy_robot",
   100  // Control cycle period in milliseconds

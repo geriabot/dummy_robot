@@ -10,7 +10,7 @@ find_package(ament_cmake REQUIRED)
 find_package(ament_index_cpp REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rclcpp_lifecycle REQUIRED)
-find_package(behavior_architecture REQUIRED)
+find_package(koch2 REQUIRED)
 find_package(behaviortree_cpp REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(yaml-cpp REQUIRED)
@@ -19,7 +19,7 @@ set(dependencies
   rclcpp
   rclcpp_lifecycle
   ament_index_cpp
-  behavior_architecture
+  koch2
   behaviortree_cpp
   std_msgs
 )

@@ -27,9 +27,9 @@ def generate_launch_description():
     pkg_dir = get_package_share_directory('dummy_robot')
     config_file = os.path.join(pkg_dir, 'config', 'dummy_mission.yaml')
     
-    # Mission executor node (from behavior_architecture package)
+    # Mission executor node (from koch2 package)
     mission_executor_node = Node(
-        package='behavior_architecture',
+        package='koch2',
         executable='mission_executor',
         output='screen',
         emulate_tty=True,

@@ -56,7 +56,7 @@ def launch_setup(context, *args, **kwargs):
     if save_exec:
         executor_args.append('--save-exec')
     nodes.append(Node(
-        package='behavior_architecture',
+        package='koch2',
         executable='mission_executor',
         name='mission_executor',
         output='screen',
@@ -66,7 +66,7 @@ def launch_setup(context, *args, **kwargs):
 
     # ── 2. Static TF Publisher ────────────────────────────────────────────────
     nodes.append(Node(
-        package='behavior_architecture',
+        package='koch2',
         executable='static_tf_publisher',
         name='static_tf_publisher',
         output='screen',
@@ -80,7 +80,7 @@ def launch_setup(context, *args, **kwargs):
     nodes.append(TimerAction( # Delay start_mission to ensure mission_executor is up and running
         period=3.0,
         actions=[Node(
-            package='behavior_architecture',
+            package='koch2',
             executable='start_mission',
             name='start_mission',
             output='screen',
